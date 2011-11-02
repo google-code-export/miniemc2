@@ -2,18 +2,18 @@
 
 = Introduction =
 Miniemc2 it's port of well know EMC2 CNC controller to embedded device. It allow you to control your CNC machine without PC via Ethernet or WI-FI (in the future). Miniemc2 provides STEP and DIRECTION signals to control stepper motors. Main features: 
-* Up to 6 axis ( should be clarified during tests )
-* Step frequency up to 40 kHz
-* STEP's width and polarity fixed: 10 uS, rising
-* 19 digital inputs, 19 digital outputs.
-* Each output can be assigned to STEP/DIR/PWM or Digital Output ( controlled from NC program)
-* Each input can be assigned to axes Home or Limit switch, or to E-STOP button
-* 2 PWM channels with fixed frequency (1 kHz) and 100 values of duty cycle
-* NC program execution from USB Flash or SD card
-* FTP access for data uploading
-* Control over network with TkEMC
-* Original WEB interface instead of TkEMC
-* External control panel can be connected via Digital Inputs ( with _halui_ )
+*Up to 6 axis ( should be clarified during tests )
+*Step frequency up to 40 kHz
+*STEP's width and polarity fixed: 10 uS, rising
+*19 digital inputs, 19 digital outputs.
+*Each output can be assigned to STEP/DIR/PWM or Digital Output ( controlled from NC program)
+*Each input can be assigned to axes Home or Limit switch, or to E-STOP button
+*2 PWM channels with fixed frequency (1 kHz) and 100 values of duty cycle
+*NC program execution from USB Flash or SD card
+*FTP access for data uploading
+*Control over network with TkEMC
+*Original WEB interface instead of TkEMC
+*External control panel can be connected via Digital Inputs ( with _halui_ )
 
 
 
