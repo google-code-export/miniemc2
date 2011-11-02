@@ -1,7 +1,7 @@
 #summary Preliminary manual.
 
 = Introduction =
-Miniemc2 it's port of well know EMC2 CNC controller to embedded device. It allow you to control your CNC machine without PC via Ethernet or WI-FI (in the future). Miniemc2 provides STEP and DIRECTION signals to control stepper motors. Main features: 
+Miniemc2 it's port of well know EMC2 CNC controller to embedded device. It allows you to control your CNC machine without PC via Ethernet or WI-FI (in the future). Miniemc2 provides STEP and DIRECTION signals to control stepper motors. Main features: 
  * Up to 6 axis ( should be clarified during tests )
  * Step frequency up to 40 kHz
  * STEP's width and polarity fixed: 10 uS, rising
