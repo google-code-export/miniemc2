@@ -5,7 +5,7 @@ Miniemc2 it's port of well know EMC2 CNC controller to embedded device. It allow
  * Up to 6 axis ( should be clarified during tests )
  * Step frequency up to 40 kHz
  * STEP's width and polarity fixed: 10 uS, rising
- * 19 digital inputs, 19 digital outputs.
+ * 19 digital inputs, 19 digital outputs. Each of them can be inverted.
  * Each output can be assigned to STEP/DIR/PWM or Digital Output ( controlled from NC program)
  * Each input can be assigned to axes Home or Limit switch, or to E-STOP button
  * 2 PWM channels with fixed frequency (1 kHz) and 100 values of duty cycle
@@ -14,13 +14,3 @@ Miniemc2 it's port of well know EMC2 CNC controller to embedded device. It allow
  * Control over network with TkEMC
  * Original WEB interface instead of TkEMC
  * External control panel can be connected via Digital Inputs ( with _halui_ )
-
-
-
-
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
