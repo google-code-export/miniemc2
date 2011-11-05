@@ -1,4 +1,4 @@
-#summary Preliminary manual.
+#summary miniEMC2 preliminary manual.
 
 = Introduction =
 Miniemc2 it's port of well known EMC2 CNC controller to embedded device. It allows you to control your CNC machine without PC via Ethernet or WI-FI (in the future). Miniemc2 provides STEP and DIRECTION signals to control stepper motors. Main features: 
@@ -14,3 +14,6 @@ Miniemc2 it's port of well known EMC2 CNC controller to embedded device. It allo
  * Control over network with TkEMC
  * Original WEB interface instead of TkEMC
  * External control panel can be connected via Digital Inputs ( with _halui_ )
+
+= Difference from original EMC2 =
+As a base for miniEMC2 was selected version 2.2.0. Later was added changes from v 2.2.8, so this is almost EMC2-2.2.8. Due to S3C2440 CPU limitation was added some changes to HAL. First of all Xenomai real-time development framework is used instead of RTAI. There is no special abstraction for Xenomai, just added some changes to sim RTAPI abstraction in such way, that instead of _libpth_ used Xenomai's native API. Second diffrence is how hard realtime parts implemented. All standart HW drivers, like _partport_ and _stepgen_ was discarded due to their performance. Pseudo hard realtime, based on FIQ interrupt from periodic timer with 10 uS period, was used instead. This path was taked from OpenMoko projects.  More details will be provided in the last part on this doc. At present time just one important note. _There is dedicated coordinate FIFO between motion controller and FIQ frequency generator. That is we always have some delays between commanded and actual position. This delay can be calculated as N*1mS, N is FIFO deep. By default FIFO size is 32, so delay is 32 mS. User can vary this value from 8 to 32._
