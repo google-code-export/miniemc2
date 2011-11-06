@@ -24,7 +24,7 @@ And the latest: _only trivial kinematics are working fine_, non-trivial ones als
 
 Software binary package consits tree parts: u-boot boot loader, Linux kernel image and root filesystem image (and its tarbal). Before start you need to dowload the latest firmware archive from _Download_ section of this site and untar it. Of course you need _mini2440_ evalution board without display. You need to connect it to PC with RS-232 cable and Ethernet cable. Will be good to have inseted SD card for NC program storing.
 
-From PC side you have to install serial communication util, like PuTTY and TFTP server, for example TFTP32 for Windows or any other. Your PC should be connected to the same Ethernet network as the _mini2440_.
+From PC side you have to install serial communication util, like PuTTY and TFTP server, for example TFTP32 for Windows or any other. Copy files from the tarball to the root folder of TFTP server. Your PC should be connected to the same Ethernet network as the _mini2440_.
 
 First you need to install u-boot bootloader. I just point you to page with detailed description of  [http://www.google.com/url?url=http://wiki.linuxmce.org/index.php/Mini2440%23Flashing_uboot&rct=j&q=mini2440+u-boot+setup&usg=AFQjCNGKmz5THZr0yw7V5xiD08asalhM6Q&sa=X&ei=XOK2Tp2EIuP34QTalqnJBQ&ved=0CCYQygQwAQ&cad=rja setup process]. Binary image of u-boot provided by me is almost the same as in that one at my link except some additional environment varibles I've added. So if you have already flashed u-boot, then you can just set next variables:
 <code>
@@ -35,5 +35,12 @@ set bootcmd 'nand read.e 0x32000000 0x60000 0x500000; bootm 0x32000000'
 set update 'run update_kernel;run update_fs;run bootcmd'
 saveenv
 </code>
-
+Next you have to setup _mini2440_ IP address and your TFTP server IP:
+<code>
+set ipaddr 192.168.1.80
+set serverip 192.168.1.8
+run update
+</code>
+_192.168.1.8_ change to the proper TFTP server address.
+Last line starts firmware downloading and NAND flash update. After that it will start miniEMC2 booting process.
  
