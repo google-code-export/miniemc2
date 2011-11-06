@@ -41,6 +41,9 @@ set ipaddr 192.168.1.80
 set serverip 192.168.1.8
 run update
 </code>
-_192.168.1.8_ change to the proper TFTP server address.
-Last line starts firmware downloading and NAND flash update. After that it will start miniEMC2 booting process.
+Change _192.168.1.8_  with the proper TFTP server address.
+ Last line starts firmware downloading and NAND flash update. After that it will start miniEMC2 booting process. First boot will take minute or two. WEB server will be accessible at address _192.168.1.80_. Also device is accessible through FTP and SSH: _ftp://root:root@192.168.1.80_ ( that is user name *root*, password *root*).
+
+ All images was tested on mini2440 with 256Mb and 1Gb of NAND flash.
+
  
