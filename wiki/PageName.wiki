@@ -43,8 +43,10 @@ set serverip 192.168.1.8
 run update
 </code>
 Change _192.168.1.8_  with the proper TFTP server address.
-Last line starts firmware downloading and NAND flash update. After that it will start miniEMC2 booting process. First boot will take minute or two. WEB server will be accessible at address _192.168.1.80_. Also device is accessible through FTP and SSH: _ftp://root:root@192.168.1.80_ ( that is user name *root*, password *root*). SD card and USB flash should be mounted and unmounted automatically. They are accessible as _/media/mmc_ and _/media/usb_. _Note: supported mounting of only one (last)  partition of SD or USB stick_. Filesystem type can be FAT16/32 or EXT3.
+Last line starts firmware downloading and NAND flash update. After that it will start miniEMC2 booting process. First boot will take minute or two. WEB server will be accessible at address _192.168.1.80_. Also device is accessible through FTP and SSH: _ftp://root:root@192.168.1.80_ ( that is user name *root*, password *root*). SD card and USB flash should be mounted and unmounted automatically. They are accessible at _/media/mmc_ and _/media/usb_. _Note: supported mounting of only one (last)  partition of SD or USB stick_. Filesystem type can be FAT16/32 or EXT3.
 
 All images was tested on mini2440 with 256Mb and 1Gb of NAND flash.
+
+= WEB Server=
 
  
