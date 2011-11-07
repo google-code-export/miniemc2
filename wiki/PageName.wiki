@@ -70,9 +70,31 @@ miniEMC2 has 19 digital inputs and 19 outputs connected to CPU's GPIO. Below con
 || 18 || 20 || 16 || || 18 || 20 || 10 ||
 || 19 || 5 || 31 || || 19 || 5 || 32 ||
 
+Software package comes with the single configuration:
+ * 4 linear axes with _mm_ unit
+ * maximum axis speed is 720 mm/min
+ * Step ratio: 3200 steps/revolution
+ * Inputs for 4 home switches and E-Stop button
+ * Outputs for _Motor Enable_ and _Spindle ON/OFF_
+ * 1 PWM output connected to Spindle RPM
 
-
-
+Below Input and Output pins table:
+|| Name || Number ||Type ||
+|| Step X || 1 || Out ||
+|| Dir X || 2 || Out ||
+|| Step Y || 3 || Out ||
+|| Dir Y || 4 || Out ||
+|| Step Z || 5 || Out ||
+|| Dir Z || 6 || Out ||
+|| Step A || 7 || Out ||
+|| Dir A || 8 || Out ||
+|| Enable || 11 || Out
+|| Spindle || 0 || Out ||
+|| Home X || 0 || In ||
+|| Home Y || 1 || In ||
+|| Home Z || 2 || In ||
+|| Home A || 3 || In ||
+|| E-Stop || 18 || In ||
 
 
 
