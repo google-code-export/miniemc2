@@ -88,7 +88,7 @@ Below Input and Output pins table:
 || Dir Z || 6 || Out ||
 || Step A || 7 || Out ||
 || Dir A || 8 || Out ||
-|| Enable || 11 || Out
+|| Enable || 11 || Out ||
 || Spindle || 0 || Out ||
 || Home X || 0 || In ||
 || Home Y || 1 || In ||
