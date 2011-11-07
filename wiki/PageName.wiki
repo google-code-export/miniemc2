@@ -49,7 +49,7 @@ All images was tested on mini2440 with 256Mb and 1Gb of NAND flash.
 
 = Connections =
 miniEMC2 has 19 digital inputs and 19 outputs connected to CPU's GPIO. Below connections table according to mini2440 schematics.
-|| *Out #* || *Conn. #* || *Pin* ||
+|| *Out #* || *Conn. #* || *Pin* ||  || *In #* || *Conn. #* || *Pin* ||
 || 1 || 5 || 9 || 
 || 2 || 5 || 10 ||
 || 3 || 5 || 11 ||
