@@ -172,9 +172,15 @@ First unusual line is
 loadrt miniemcdrv axes_conf="X Y Z A" fifo_deep=32 step_pins=1,3,5,7 dir_pins=2,4,6,8 dir_polarity=1,1,1,1 step_per_unit=320000,320000,320000,320000 io_update_period=1 max_pwm_value=30000 pwm_pin_num=16,17
 </code>
 *miniemcdrv* it's only HW drive that can be used in miniEMC2, so I have to describe it enough.
-== Synopsys ==
-_loadrt miniemcdrv axes_conf="acfg_str" [fifo_deep=deep] step_pins=<pin_num>,<pin_num>,... dir_pins=<pin_num>,<pin_num>,... , dir_polarity=<0_or_1>,<0_or_1>,..., step_per_unit=<spp_val>,<spp_val>,..., [io_update_period=1], [ max_pwm_value=<max_rpm>]_
-
+== Description ==
+*miniemcdrv* take care about following functions:
+ * Receives commanded position from the _motion controller_ and caclulate desired values for Step's frequency synthesizers, add it to dedicated FIFO; 
+ * Implements PI regulators of position loops;
+ * Provides HAL for digital inputs and outputs;
+ * Transfer Digital Ouputs and PWM values to FIQ handler;
+ * Poll Digital Inputs;
+== Parameters ==
+`axes_conf` - desricbes axes configuration. It is a string of capytal symbols *X*, *Y*, *Z*, *A*, *B*, *C* delimited by `space` symbol. Imagine, our axis was numbered from 1 to 6 and we have next configuration string "X Y Z X A Y". It means  we assigned axis[1] = 'X', axis[2] = 'Y', axis[3]='Z', axis[4] = 'X', axis[5] = 'A' and axis[6] = 'Y'. We have two axes with name 'X': 1 and 4, that is they will moves synchronously, like anothe pair of axes: 2 and 6 for name 'Y'. 
 = To be continued... =
 
 *_Request to all who is reading this manual: I would like to know your opinion about this project: What do you want me to desribe in this manual? Is is clear how to use WEB interface? Is it usable? So any feedback are welсome! Email me to kayserg at gmail.com_*
