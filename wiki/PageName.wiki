@@ -99,7 +99,7 @@ Below Input and Output pins table:
 
 = To be continued... =
 
-*_Reuest to all who is reading this manual: I would like to know your opinion about this project: What do you want me to desribe in this manual? Is is clear how to use WEB interface? Is it usable? So any feedback are welсome! Email me to kayserg at gmail.com_*
+*_Request to all who is reading this manual: I would like to know your opinion about this project: What do you want me to desribe in this manual? Is is clear how to use WEB interface? Is it usable? So any feedback are welсome! Email me to kayserg at gmail.com_*
  
 
 
