@@ -180,7 +180,15 @@ loadrt miniemcdrv axes_conf="X Y Z A" fifo_deep=32 step_pins=1,3,5,7 dir_pins=2,
  * Transfer Digital Ouputs and PWM values to FIQ handler;
  * Poll Digital Inputs;
 == Parameters ==
-`axes_conf` - desricbes axes configuration. It is a string of capytal symbols *X*, *Y*, *Z*, *A*, *B*, *C* delimited by `space` symbol. Imagine, our axis was numbered from 1 to 6 and we have next configuration string "X Y Z X A Y". It means  we assigned axis[1] = 'X', axis[2] = 'Y', axis[3]='Z', axis[4] = 'X', axis[5] = 'A' and axis[6] = 'Y'. We have two axes with name 'X': 1 and 4, that is they will moves synchronously, like anothe pair of axes: 2 and 6 for name 'Y'. 
+`axes_conf` - describes axes configuration. It is a string of capital letters *X*, *Y*, *Z*, *A*, *B*, *C* delimited by `space` symbol. Imagine, our axis was numbered from 1 to 6 and we have next configuration string "X Y Z X A Y". It means  we assigned axis1=*X*, axis2=*Y*, axis3=*Z*, axis4=*X*, axis5=*A* and axis6 =*Y*. We have two axes with name *X*: 1 and 4, that is they will moves synchronously, like another pair of axes: 2 and 6 with name *Y*. Maximum 6 axis allowed.
+ 
+`fifo_deep` - optional parameters which sets frequency synthesizerss' FIFO deep. For usual users it means delay in mS between comnanded and actual position. Less value - less delay. But at the same time you have not set its value lower than 8, because it affects also to system stability. If you woulld like to make tests, then connect serial console and look for any "FIFO underrun!!!" messages. If they appeared, then you have set too small `fifo_deep` value. _This option only for test purpose and will be removed in the future_.
+
+`step_pins` = list of comma-separated values of Digital Output pins to be used as STEP signals. Accepted values: 0 .. 19, or -1 if no pins assigned. Number of pins should match to number of axes in `axes_conf` parameter.
+
+`dir_pins` = list of comma-separated values of Digital Output pins to be used as DIRECTION signals. Rules are the same as for `step_pins`.
+ 
+
 = To be continued... =
 
 *_Request to all who is reading this manual: I would like to know your opinion about this project: What do you want me to desribe in this manual? Is is clear how to use WEB interface? Is it usable? So any feedback are welсome! Email me to kayserg at gmail.com_*
