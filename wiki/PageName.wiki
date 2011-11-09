@@ -97,7 +97,10 @@ Below Input and Output pins table:
 || Home A || 3 || In ||
 || E-Stop || 18 || In ||
 
+= To be continued... =
 
+*_Reuest to all who reads this manual: I would like to know your opinion about this project: What do you want me to desribe in this manual? Is is clear how to use WEB interface? Is it usable? So any feedback are welсome!_*
+ 
 
 
 
