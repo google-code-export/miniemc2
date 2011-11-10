@@ -144,7 +144,7 @@ net EStop iocontrol.0.emc-enable-in <= miniemcdrv.18.pin-in
 setp miniemcdrv.18.pin-in-inv False
 # Connect spindle PWM output
 net SSpindlePWM motion.spindle-speed-out => miniemcdrv.0.pwm-in
-# create motion IO signals
+# create DI/DO signals
 net Input4 miniemcdrv.4.pin-in => motion.digital-in-04
 net Input5 miniemcdrv.5.pin-in => motion.digital-in-05
 net Input6 miniemcdrv.6.pin-in => motion.digital-in-06
@@ -203,11 +203,21 @@ loadrt miniemcdrv axes_conf="X Y Z A" fifo_deep=32 step_pins=1,3,5,7 dir_pins=2,
 == Pins ==
 `miniemcdrv.N.pin-out` - input. Represent Digital Output (DO), N=0..18;
 
-`miniemcdrv.N.pin-out-inv` - input, allow invert corresponding DO, N=0..18;
+`miniemcdrv.N.pin-out-inv` - input, allows to invert corresponding DO, N=0..18;
 
 `miniemcdrv.N.pin-in` - output. Represent Digital Input (DI), N=0..18;
 
-`miniemcdrv.N.pin-in-inv` - input, allow invert corresponding DI, N=0..18;
+`miniemcdrv.N.pin-in-inv` - input, allows to invert corresponding DI, N=0..18;
+
+Next important line
+
+<code>
+# Motion sync sygnals
+net TrajWiat motion.traj-wait-ready  <= miniemcdrv.traj-wait-out
+</code>
+
+This line should be present always in any configuration, it allows to control FIQ FIFO overflow control.
+
 
 = To be continued... =
 
