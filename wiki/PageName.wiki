@@ -47,6 +47,11 @@ Last line starts firmware downloading and NAND flash update. After that it will 
 
 All images was tested on mini2440 with 256Mb and 1Gb of NAND flash.
 
+= WEB interface =
+WEB server is ready to access at address htpp://192.168.1.80 in 1 minute after start. You will see next page
+[http://miniemc2.googlecode.com/files/miniemc2_3.png]
+
+
 = Connections =
 miniEMC2 has 19 digital inputs and 19 outputs connected to CPU's GPIO. Below connections table according to mini2440 schematics. _*Please note: you have not apply signals from mini2440 to steppper motor driver, or from switches and buttons directly to inputs of mini2440 - this may destroy your CPU. You need to use buffering circuit and may be logical level shifiting sircuit! CPU is not 5V tolerant!*_
 || *Out #* || *Conn. #* || *Pin* ||  || *In #* || *Conn. #* || *Pin* ||
@@ -216,7 +221,8 @@ Next important line
 net TrajWiat motion.traj-wait-ready  <= miniemcdrv.traj-wait-out
 </code>
 
-This line should be present always in any configuration, it allows to control FIQ FIFO overflow control.
+This line should be present always in any configuration, it allows to control FIQ'
+s FIFO overflow.
 
 
 = To be continued... =
