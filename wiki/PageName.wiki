@@ -188,6 +188,23 @@ loadrt miniemcdrv axes_conf="X Y Z A" fifo_deep=32 step_pins=1,3,5,7 dir_pins=2,
 
 `dir_pins` = list of comma-separated values of Digital Output pins to be used as DIRECTION signals. Rules are the same as for `step_pins`.
  
+`io_update_period` = only for test, set it to 1.
+
+`step_per_unit` = list of comme-separated positive integer values. Each value represent number of STEP pulses per axis unit multiplyed by 100. In the example above value 320000 means 320000/100=3200 pulses/unit. Up to 6 values allowed.
+
+`max_pwm_value` = fullscale value of PWM, single value for both channel. If you use it for spindle speed control, then set it to MAX Spindle RPM. 
+
+
+`pwm_pin_num` = number of Output Pins to be used as PWM output. Two values allowed, because we have 2 PWM channels.
+
+== Functions ==
+`miniemcdrv.update-miniemcdrv` should be called at servo update rate.
+
+== Pins ==
+`miniemcdrv.N.pin-out` - input. Represent Digital Output (DO), N=0..18;
+`miniemcdrv.N.pin-out-inv` - input, allow invert corresponding DO, N=0..18;
+`miniemcdrv.N.pin-in` - output. Represent Digital Input (DI), N=0..18;
+`miniemcdrv.N.pin-in-inv` - input, allow invert corresponding DI, N=0..18;
 
 = To be continued... =
 
