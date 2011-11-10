@@ -184,7 +184,7 @@ loadrt miniemcdrv axes_conf="X Y Z A" fifo_deep=32 step_pins=1,3,5,7 dir_pins=2,
 
 `fifo_deep` - optional parameters which sets frequency synthesizerss' FIFO deep. For usual users it means delay in mS between comnanded and actual position. Less value - less delay. But at the same time you have not set its value lower than 8, because it affects also to system stability. If you woulld like to make tests, then connect serial console and look for any "FIFO underrun!!!" messages. If they appeared, then you have set too small `fifo_deep` value. _This option only for test purpose and will be removed in the future_.
 
-`step_pins` = list of comma-separated values of Digital Output pins to be used as STEP signals. Accepted values: 0 .. 19, or -1 if no pins assigned. Number of pins should match to number of axes in `axes_conf` parameter.
+`step_pins` = list of comma-separated values of Digital Output pins to be used as STEP signals. Accepted values: 0 .. 18, or -1 if no pins assigned. Number of pins should match to number of axes in `axes_conf` parameter.
 
 `dir_pins` = list of comma-separated values of Digital Output pins to be used as DIRECTION signals. Rules are the same as for `step_pins`.
  
