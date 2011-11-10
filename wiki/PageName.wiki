@@ -48,8 +48,15 @@ Last line starts firmware downloading and NAND flash update. After that it will 
 All images was tested on mini2440 with 256Mb and 1Gb of NAND flash.
 
 = WEB interface =
+miniEMC2 uses fully static WEB-page which loaded only once at first connect. After integrated srcipts use AJAX requests to update displayed information. These provide some benefits to users: GUI works fast and there is no problem to customize HTML page for user requirements - used only 3 files - index.html, css/webemc.css and js/miniemc2.js.
+ 
 WEB server is ready to access at address htpp://192.168.1.80 in 1 minute after start. You will see next page
 [http://miniemc2.googlecode.com/files/miniemc2_3.png]
+It divided to 4 parts:
+== Machine position panel ==
+It's left panel of the page. As you can see there displayed _Axis positions_, current _Feedrate_, slider for _Feedrate override_ and _E-Stop_ button. This panel always present on display independent on operation mode or selected Control panel. _In this version axis's position always displayed in *mm* independent on NC program unit._ Note: don't drag feedrate's slider, just click bellow or above it. _E-Stop_ button also has three modes: _normal_ when motors powers is off, _pressed_ ( red cross inside button ) when machine is powered and/or it is working. Pressing on this button immediately stops machine movement and releases motors. And third E-Stop state is "red" when external E-Stop button is pressed ( if such button exists in your configuration ). 
+
+
 
 
 = Connections =
