@@ -202,8 +202,11 @@ loadrt miniemcdrv axes_conf="X Y Z A" fifo_deep=32 step_pins=1,3,5,7 dir_pins=2,
 
 == Pins ==
 `miniemcdrv.N.pin-out` - input. Represent Digital Output (DO), N=0..18;
+
 `miniemcdrv.N.pin-out-inv` - input, allow invert corresponding DO, N=0..18;
+
 `miniemcdrv.N.pin-in` - output. Represent Digital Input (DI), N=0..18;
+
 `miniemcdrv.N.pin-in-inv` - input, allow invert corresponding DI, N=0..18;
 
 = To be continued... =
