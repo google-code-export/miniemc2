@@ -52,10 +52,26 @@ miniEMC2 uses fully static WEB-page which loaded only once at first connect. Aft
  
 WEB server is ready to access at address htpp://192.168.1.80 in 1 minute after start. You will see next page
 [http://miniemc2.googlecode.com/files/miniemc2_3.png]
+
 It divided into 4 parts:
 == Machine position panel ==
-It's left panel of the page. As you can see there displayed _Axis positions_, current _Feedrate_, slider for _Feedrate override_ and _E-Stop_ button. This panel always present on display independent on operation mode or selected Control panel. _In this version axis's position always displayed in *mm* independent on NC program unit._ Note: don't drag feedrate's slider, just click bellow or above it. _E-Stop_ button also has three modes: _normal_ when motors powers is off, _pressed_ ( red cross inside button ) when machine is powered and/or it is working. Pressing on this button immediately stops machine movement and releases motors. And third E-Stop state is "red" when external E-Stop button is pressed ( if such button exists in your configuration ). 
+It's left panel of the page. As you can see there displayed _Axes position_, current _Feedrate_, slider for _Feedrate override_ and _E-Stop_ button. This panel always present on display independent on operation mode or selected Control panel. _In this version axis's position always displayed in *mm* independent on NC program unit._ Note: don't drag feedrate slider, just click bellow or above it. _E-Stop_ button has three modes: _normal_ when motors powers is off, _pressed_ ( red cross inside button ) when machine is powered and/or it is working. Click on this button immediately stops machine movement and releases motors. And third E-Stop state is "red" when external E-Stop button is pressed ( if such button exists in your configuration ). 
 
+== Machine control panel ==
+It's the right panel of the page. Provided 4 types of panels and user can switch between them clicking on _Menu bar_.
+=== Manual control ===
+This is default panel at WEB session start ( see pic. above). Here user can move axis pressing corresponding buttons. For *X* and *Y* axes here provided dedicated buttons - looks like joystick. Inside this "joystick" placed toggle button for spindle control. All other axes can be jogged by round buttons, movement will be performed on that axis, which was selected by _Select axis_ select box. Another select box with name _Jogging mode_ allows you to select 9 jogging modes: _cont._ - continus, that is, axis is moving till you press corresponding button and 500,100,10,1,0.1,0.01,0.001 allows to move axis to discrete distance. 
+
+=== Homes ===
+[http://miniemc2.googlecode.com/files/miniemc2_2.png]
+Provides functions for machine initial setup. On the left panel with "home" icon placed the buttons which perform "homming" sequence when user clicks them. This sequence dependent on INI file options ( see "EMC2 Integrator manual" for details). 
+
+Next subpanel( from top to bottom ) provides tools for select and setup current coordinate system.
+Next subpanel display offsets of current coordinate system from absolute machine position.
+Next subpanel displays active modal codes. And the last subpanel _Position control_ provide three buttons. _"Go home"_ it's shortcut for MDI command "G0 X0 Y0 Z0 A0 B0 C0", _"Absolute/Relative"_ toggle button change mode of displayed positions and the third _"Use limits"_  allows to ignore limits when you need to move machine out from limit switches.
+
+=== Auto ===
+[http://miniemc2.googlecode.com/files/miniemc2_1.png]
 
 
 
