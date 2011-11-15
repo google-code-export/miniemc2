@@ -95,10 +95,11 @@ Last panel is *MDI* execution control. User can enter single line of valid G-cod
 
 === Misc ===
 [http://miniemc2.googlecode.com/files/miniemc2_4.png]
+
 This panel allows:
  * Changing of IP address. To do that enter new IP address and click *Apply* button. Page will be reloaded from new address.
  * Reboot the system by clicking on *Reboot* button
- * Restart EMC2 core by clicking on *Reload* button. It's useful when user has changed EMC2's configuration files.
+ * Restart EMC2 core by clicking on *Reload* button. It's useful when user has changed EMC2's configuration files and would like to apply changes without reboot.
 
   
 
