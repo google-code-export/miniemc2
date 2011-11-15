@@ -72,13 +72,21 @@ Next subpanel displays active modal codes. And the last subpanel _Position contr
 
 === Auto ===
 [http://miniemc2.googlecode.com/files/miniemc2_1.png]
+
 It provides tools for NC program execution control and MDI operations. First horizontal panel contains next controls (from left to right):
+
 1. *Program Stop* button. Click there stops current program or MDI command execution. Current NC files will be reload and Current Line Pointer will be set to first line of NC code.
+
 2. *Current line number* input field. During program execution it shows actual program line. When program is stopped user can enter line number to start program from. _Note: before program start make sure does it point to correct line number_
+
 3. *Start/Pause/Resume* button. This is multifunction button. If program is stopped (i.e. interpreter in the Idle state), then click on this button starts program execution. At this time button's will be switched to "Pause" mode. Clicking on "Pause" will suspend the program execution until user clicks on this button again (or click *Program Stop* button).
+
 4. *Step* button. Click on this button starts execution of the current line of G-code. If program was started, then it suspends program execution at the end of current line.
+
 5. *NC Program display* button switches *Data panel* to _Program view_ mode.
+
 6. *File display* button switches *Data panel* to _File view_ mode ( see below).
+
 Second (main) panel has name *Data panel*. It is used to display NC program (_Program view_) or file selection tree (_File view_).
 _Program view_ displays current NC program's context (16 lines). Current line is highlighted. User's click on one of displayed lines will change value of *Current line number* input field. 
 _File view_ displays files and folders tree on mini2440 at _/media_ folder. User can select the program to be executed.
