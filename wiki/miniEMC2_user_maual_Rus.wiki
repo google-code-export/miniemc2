@@ -23,12 +23,10 @@ miniEMC не использует штатные дисплеи от mini2440 и
 И последнее: _стабильно работает только тривиальная кинематика_, нетривиальная так-же присутствует, но ей не хватает вычислительной мощности данного CPU.
 
 = Быстрый старт =
+Архив с программами содержит три части: начальный загрузчик u-boot, образ ядра Linux и образ файловой системы ( а так-же в виде tar архива). Последний релиз можно скачать в разделе Downloads этого сайта. Кроме того вам понадобится mini2440 без дисплея, соединенный с вашим ПК по RS-232 ( COM-порт ). Плата должна быть подключена к сети Ethernet. Также желательно установить SD карту в слот mini2440. Со стороны ПК нужно установить две программы: TFTP-сервер ( например TFTP32 для Windows ) и программу для обмена по последовательному порту, например PuTTY. Распакуйте все файлы из архива EMC2 в корневую папку TFTP-сервера.
 
-Software binary package consits tree parts: u-boot boot loader, Linux kernel image and root filesystem image (and its tarbal). Before start you need to dowload the latest firmware archive from _Download_ section of this site and untar it. Of course you need _mini2440_ evalution board without display. You need to connect it to PC with RS-232 cable and Ethernet cable. Will be good to have inseted SD card for NC program storing.
-
-From PC side you have to install serial communication util, like PuTTY and TFTP server, for example TFTP32 for Windows or any other. Copy files from the tarball to the root folder of TFTP server. Your PC should be connected to the same Ethernet network as the _mini2440_.
-
-First you need to install u-boot bootloader. I just point you to page with detailed description of  [http://www.google.com/url?url=http://wiki.linuxmce.org/index.php/Mini2440%23Flashing_uboot&rct=j&q=mini2440+u-boot+setup&usg=AFQjCNGKmz5THZr0yw7V5xiD08asalhM6Q&sa=X&ei=XOK2Tp2EIuP34QTalqnJBQ&ved=0CCYQygQwAQ&cad=rja setup process]. Binary image of u-boot provided by me is almost the same as in that one at my link except some additional environment varibles I've added. So if you have already flashed u-boot, then you can just set next variables:
+Сначала нужно устовить u-boot. Это процедура неплохо описана в Интернете, например [http://www.google.com/url?url=http://wiki.linuxmce.org/index.php/Mini2440%23Flashing_uboot&rct=j&q=mini2440+u-boot+setup&usg=AFQjCNGKmz5THZr0yw7V5xiD08asalhM6Q&sa=X&ei=XOK2Tp2EIuP34QTalqnJBQ&ved=0CCYQygQwAQ&cad=rja здесь].
+Образ загрузчика, предоставляемый в нашем архиве, практически ни чем не отличается от оригинального с сайта по ссылке за исключением нескольких переменных окружения. Если вы уже имеете установленный u-boot, то можно просто добавить эти переменный с консоли:
 <code>
 set update_kernel 'tftpboot 0x32000000 uImage; nand erase 0x60000 0x500000; nand write.e 0x32000000 0x60000 0x500000'
 set update_fs 'tftpboot 0x32000000 rootfs.jffs2; nand erase 0x560000 0x2000000; nand write.e 0x32000000 0x560000 ${filesize}'
@@ -37,16 +35,15 @@ set bootcmd 'nand read.e 0x32000000 0x60000 0x500000; bootm 0x32000000'
 set update 'run update_kernel;run update_fs;run bootcmd'
 saveenv
 </code>
-Next you have to setup _mini2440_ IP address and your TFTP server IP:
+После этого установите IP адрес вашей платы и адрес TFTP-сервера:
 <code>
 set ipaddr 192.168.1.80
 set serverip 192.168.1.8
 run update
 </code>
-Change _192.168.1.8_  with the proper TFTP server address.
-Last line starts firmware downloading and NAND flash update. After that it will start miniEMC2 booting process. First boot will take minute or two. WEB server will be accessible at address _192.168.1.80_. Also device is accessible through FTP and SSH: _ftp://root:root@192.168.1.80_ ( that is user name *root*, password *root*). SD card and USB flash should be mounted and unmounted automatically. They are accessible at _/media/mmc_ and _/media/usb_. _Note: supported mounting of only one (last)  partition of SD or USB stick_. Filesystem type can be FAT16/32 or EXT3.
+Замените _192.168.1.8_  правильным адресом вашего TFTP сервера. Последняя строка начинает процедуру загрузки образов ядра и файловой системы и запись их в NAND flash, после этого miniEMC2 стартует автоматически. Первая загрузка потребует минуту или две, после чего WEB-сервер будет доступен по адресу _192.168.1.80_. Кроме того устройство будет доступно по FTP и SSH ( пользователь *root*, пароль *root* ). SD карта и USB Flash должны монтироваться и размонтироаться автоматически. Их содержимое находится в папках _/media/mmc_ and _/media/usb_. _Внимание: поддерживается монтирование только одного ( последнего ) раздела_. Тип файловой системы может быть FAT16/FAT32/EXT3.
 
-All images was tested on mini2440 with 256Mb and 1Gb of NAND flash.
+Все образы были проверены на mini2440 с объемом NAND в 256Мб и 1Гб.
 
 = WEB interface =
 miniEMC2 uses fully static WEB-page which loaded only once at first connect. After that integrated scripts are using AJAX requests to update displayed information. Such design provides some benefits for users: GUI works fast and there is no problem to customize HTML page for user's requirements - used only 3 files - index.html, css/webemc.css and js/miniemc2.js.
