@@ -1,4 +1,4 @@
-#summary miniEMC2 - руководство пользователя. Предварительная версия.
+#summary miniEMC2 - руководство пользователя..
 
 = Введение =
 MiniEMC2 это адаптированная версия широко известной программы управления станком ЧПУ EMC2. Это автономный контроллер ЧПУ, который позволяет вам управлять станком без использвани PC через TCP/IP сеть.  MiniEMC2 формирует сигналы управления ШАГ/НАПРАВЛЕНИЕ для управления шаговыми двигателями. Основные характеристики:
@@ -46,19 +46,26 @@ run update
 Все образы были проверены на mini2440 с объемом NAND в 256Мб и 1Гб.
 
 = WEB interface =
-miniEMC2 uses fully static WEB-page which loaded only once at first connect. After that integrated scripts are using AJAX requests to update displayed information. Such design provides some benefits for users: GUI works fast and there is no problem to customize HTML page for user's requirements - used only 3 files - index.html, css/webemc.css and js/miniemc2.js.
- 
-WEB server is ready to access at address htpp://192.168.1.80 in 1 minute after start. You will see next page
+miniEMC2 использует полностью статическую WEB-страницу, которая загружается при первом соединении с WEB-сервером. После этого информация на дисплее обновляется динамически используя AJAX-запросы. Такое решение позволило получить минимальную нагрузку на mini2440, ускорить отображение страницы и дает пользователю возможность самостоятельно модифицировать вид WEB-страницы. Для этого нужно модифицировать всего три текстовый файла: index.html, css/webemc.css и js/miniemc2.js.
+
+WEB-сервер доступен по адресу htpp://192.168.1.80 через минуту после загрузки mini2440. Вы увидите следующую страницу:
+
 [http://miniemc2.googlecode.com/files/miniemc2_3.png]
 
-It divided into 4 parts:
-== Machine position panel ==
-It's left panel of the page. As you can see there displayed _Axes position_, current _Feedrate_, slider for _Feedrate override_ and _E-Stop_ button. This panel always present on display independent on operation mode or selected Control panel. _In this version axis's position always displayed in *mm* independent on NC program unit._ Note: don't drag feedrate slider, just click bellow or above it. _E-Stop_ button has three modes: _normal_ when motors powers is off, _pressed_ ( red cross inside button ) when machine is powered and/or it is working. Click on this button immediately stops machine movement and releases motors. And third E-Stop state is "red" when external E-Stop button is pressed ( if such button exists in your configuration ). 
+Она разделена на 4 части:
 
-== Machine control panel ==
-It's the right panel of the page. Provided 4 types of panels and user can switch between them clicking on _Menu bar_.
-=== Manual control ===
-This is default panel at WEB session start ( see pic. above). Here user can move axis pressing corresponding buttons. For *X* and *Y* axes here provided dedicated buttons - looks like joystick. Inside this "joystick" placed toggle button for spindle control. All other axes can be jogged by round buttons, movement will be performed on that axis, which was selected by _Select axis_ select box. Another select box with name _Jogging mode_ allows you to select 9 jogging modes: _cont._ - continus, that is, axis is moving till you press corresponding button and 500,100,10,1,0.1,0.01,0.001 allows to move axis to discrete distance. 
+== Панель оперативной информации и управления ==
+Это левая панель страницы. Как вы видите здесь отображаются _Заданная позиция осей_, слайдер для изменения скорости подачи в процентах от заданной и кнопка _Аварийного останова_. Эта панель отображается всегда не зависимо от режима или выдранной вкладки управления. В данной версии положение осей всегда отображается в *мм* независимо от заданного в программе. _Внимание: не пытайтесь перетаскивать слайдер подачи, просто клинете сверху или снизу него_.
+
+Кнопка _Аварийный останов_ имеет три состояния. _Нормальное_ когда машина находится в неактивном состоянии, _Включено_ ( отображается красный крест внутри кнопки) когда машина готова к работе и все привода осей включены и/или перемещаются. Нажатие на кнопку в этот момент приведет к немедленному ( аварийному ) останову машины. И третье состояние - _Авария_, когда кнопка отображается красным цветом. Это обозначает что внешняя (аппаратный) кнопка ( сигнал ) присутствует. При этом машина переводится в выключенное состояние и находится в нем до пока этот сигнал присутствует. 
+ 
+== Панель управления машиной ==
+Это правая часть страницы. Здесь могут отображаться 4 вида панели в зависимости от выбора пользователя в _Панели меню_ ( верхняя панель ).
+
+=== Ручное управление ===
+Это панель по умолчанию при старте WEB-сессии (см. рисунок выше)
+Пользователь может перемещать оси используя специальные кнопки управления.  Для осей *X* и *Y* есть специальные кнопки в виде джойстика. Внутри него располагается тумблер включения шпинделя. 
+Все остальные оси могут перемещаться при помощи круглых кнопок, при этом перемещаться будет та ось, имя которой ранее было выбрано в элементе управления _Select axis_.  Другой элемент управления  с именем _Jogging mode_ определяет позволяет выбрать один из 9 типов перемещения: _cont._ - непрерывное перемещение пока нажата соответствующая кнопка и 8 возможных перемещений на фиксированную длину 500, 100, 10, 1, 0.1, 0.01, 0.001 мм.  
 
 === Homes ===
 [http://miniemc2.googlecode.com/files/miniemc2_2.png]
