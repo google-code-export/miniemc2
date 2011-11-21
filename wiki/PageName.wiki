@@ -48,7 +48,7 @@ Last line starts firmware downloading and NAND flash update. After that it will 
 All images was tested on mini2440 with 256Mb and 1Gb of NAND flash.
 
 = WEB interface =
-miniEMC2 uses fully static WEB-page which loaded only once at first connect. After that integrated scripts are using AJAX requests to update displayed information. Such design provides some benefits for users: GUI works fast and there is no problem to customize HTML page for user's requirements - used only 3 files - index.html, css/webemc.css and js/miniemc2.js.
+miniEMC2 uses fully static WEB-page which loaded only once at first connect. After that integrated scripts are using AJAX requests to update displayed information. Such design provides some benefits for users: GUI works fast and there is no problem to customize HTML page for user's requirements - used only 3 files - index.html, css/webemc.css and js/miniemc2.js ( and jQuery and some plugins, but it's standard things).
  
 WEB server is ready to access at address htpp://192.168.1.80 in 1 minute after start. You will see next page
 [http://miniemc2.googlecode.com/files/miniemc2_3.png]
