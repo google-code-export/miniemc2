@@ -31,7 +31,7 @@ First you need to install u-boot bootloader. I just point you to page with detai
 <code>
 set update_kernel 'tftpboot 0x32000000 uImage; nand erase 0x60000 0x500000; nand write.e 0x32000000 0x60000 0x500000'
 set update_fs 'tftpboot 0x32000000 rootfs.jffs2; nand erase 0x560000 0x2000000; nand write.e 0x32000000 0x560000 ${filesize}'
-set bootargs 'bootargs=console=ttySAC0,115200n8 root=/dev/mtdblock3 rootfstype=jffs2'
+set bootargs 'console=ttySAC0,115200n8 root=/dev/mtdblock3 rootfstype=jffs2'
 set bootcmd 'nand read.e 0x32000000 0x60000 0x500000; bootm 0x32000000'
 set update 'run update_kernel;run update_fs;run bootcmd'
 saveenv
