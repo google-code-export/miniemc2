@@ -1,0 +1,26 @@
+config IPIPE
+	bool "Interrupt pipeline"
+	default y
+	---help---
+	  Activate this option if you want the interrupt pipeline to be
+	  compiled in.
+
+config IPIPE_DOMAINS
+	int "Max domains"
+	depends on IPIPE
+	default 4
+	---help---
+	The maximum number of I-pipe domains to run concurrently.
+
+config IPIPE_DELAYED_ATOMICSW
+       bool
+       depends on IPIPE
+       default n
+
+config IPIPE_UNMASKED_CONTEXT_SWITCH
+       bool
+       depends on IPIPE
+       default n
+
+config HAVE_IPIPE_HOSTRT
+       bool

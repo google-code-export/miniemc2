@@ -1,0 +1,231 @@
+#! /bin/bash
+#
+# ../scripts/realtime.  Generated from realtime.in by configure. 
+# on Sun Oct 30 12:23:04 EET 2011
+#
+
+export LANG=C
+
+PIDOF=/bin/pidof
+
+if ! type -path readlink > /dev/null 2>& 1; then
+    function readlink () {
+        perl -le 'print readlink(shift)' -- $1
+    }
+fi
+
+RUN_IN_PLACE=yes
+if [ $RUN_IN_PLACE = yes ]; then
+    # When using RIP make sure PATH includes the directory where rtapi_app
+    # resides
+    PATH=/home/emc2/bin:$PATH; export PATH
+fi
+
+CheckConfig(){
+    prefix=/home/ksu/projects/miniemc/emc-arm-xen
+    exec_prefix=${prefix}
+    sysconfdir=${prefix}/etc
+    if [ $RUN_IN_PLACE = yes ]; then
+        RTAPICONF=
+        # check in the emc2 scripts directory
+        # $0 is the command to run this script
+        # strip the script name to leave the path
+        SCRIPT_DIR=${0%/*}
+        # the path might be relative
+        # convert it to an absolute path
+        SCRIPT_DIR=$(cd $SCRIPT_DIR ; pwd -P)
+        # now look for rtapi.conf there
+        if [ -f $SCRIPT_DIR/rtapi.conf ] ; then
+            RTAPICONF=$SCRIPT_DIR/rtapi.conf
+        fi
+    else
+        if [ -f $sysconfdir/emc2/rtapi.conf ]; then
+                RTAPICONF=$sysconfdir/emc2/rtapi.conf
+        fi
+    fi
+    if [ -z "$RTAPICONF" ] ; then
+	echo "Missing rtapi.conf.  Check your installation." 1>&2
+	exit 1
+    fi
+    INSMOD="/home/emc2/bin/emc_module_helper insert"
+    RMMOD="/home/emc2/bin/emc_module_helper remove"
+    FUSER="/bin/fuser"
+
+    # Import the config
+    source $RTAPICONF
+    if [ ! -e $RTLIB_DIR/.runinfo -a -e $RTLIB_DIR/emc2/.runinfo ]; then
+        # installed system: we don't want our modules mixed up with rtai
+        RTLIB_DIR=$RTLIB_DIR/emc2
+    fi
+    # Export the module path specified in the config.
+    export MODPATH
+    # Generate module lists for loading and unloading
+    # lists contain RTOS modules plus RTAPI and HAL
+    # unload list is in reverse order
+    # any module names that are symlinks are resolved to their real names
+    MODULES_LOAD=
+    MODULES_UNLOAD=
+    case $RTPREFIX in
+    sim) SHM_DEV=/dev/zero;;
+    *)
+        for  MOD in $MODULES ; do
+            eval MOD=\${MODPATH_$MOD}
+            if [ -z "$MOD" ]; then continue; fi
+            if [ -L $MOD ]; then
+                MOD=${MOD%/*}/$(readlink $MOD)
+            fi
+            MODULES_LOAD="$MODULES_LOAD $MOD"
+            MOD="${MOD##*/}"
+            MOD="${MOD%$MODULE_EXT}"
+            MODULES_UNLOAD="$MOD $MODULES_UNLOAD"
+        done
+        MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/rtapi$MODULE_EXT $RTLIB_DIR/hal_lib$MODULE_EXT"
+        MODULES_UNLOAD="hal_lib rtapi $MODULES_UNLOAD"
+        case "$MODULES" in
+        *rtai_shm*)
+            SHM_DEV=/dev/rtai_shm
+        ;;
+        *mbuff*)
+            SHM_DEV=/dev/mbuff
+        ;;
+        esac
+    esac
+}
+
+CheckStatus(){
+    case $RTPREFIX in
+    sim)
+        if [ -z "$($PIDOF rtapi_app)" ]; then
+            exit 1
+        else
+            exit 0
+        fi ;;
+    *)
+        # check loaded/unloaded status of modules
+        unset NOTLOADED
+        for MOD in $MODULES_UNLOAD ; do
+            if /sbin/lsmod | awk '{print $1}' | grep -x $MOD >/dev/null ; then
+                echo "$MOD is loaded"
+            else
+                echo "$MOD is not loaded"
+                NOTLOADED=NOT
+            fi
+        done
+        if [ -z $NOTLOADED ]; then
+            exit 0
+        else
+            exit 1
+        fi
+    esac
+}
+
+CheckMem(){
+# check for user space processes using shared memory
+    if [ -e /dev/mbuff ] ; then
+	# device file exists, check for processes using it
+	if $FUSER -s /dev/mbuff 2>/dev/null; then
+	    # at least one process is using it
+	    echo "ERROR:  Can't remove RTLinux modules, kill the following process(es) first"
+	    $FUSER -v /dev/mbuff
+	    exit 1
+	fi
+    elif [ -e /dev/rtai_shm ] ; then
+	# device file exists, check for processes using it
+	if $FUSER -s /dev/rtai_shm 2>/dev/null; then
+	    # at least one process is using it
+	    echo "ERROR:  Can't remove RTAI modules, kill the following process(es) first"
+	    $FUSER -v /dev/rtai_shm
+	    exit 1
+	fi
+    fi
+}
+
+Load(){
+    case $RTPREFIX in
+    sim)
+    ;;
+    *)
+        for MOD in $MODULES_LOAD ; do
+            $INSMOD $MOD || return $?
+        done
+        if [ "$DEBUG" != "" ] && [ -w /proc/rtapi/debug ] ; then
+            echo "$DEBUG" > /proc/rtapi/debug
+        fi
+    esac
+}
+
+CheckLoaded(){
+    # this abomination is needed because udev sometimes doesn't
+    # have the device ready for us in time.
+    n=0
+    while [ $n -lt 100 ]; do
+        [ -w $SHM_DEV ] && return 0
+        echo "." 1>&2
+        sleep .1
+        n=$(($n+1))
+    done
+    echo "Can't write to $SHM_DEV - aborting" 1>&2
+    exit 1
+}
+
+Unload(){
+    case $RTPREFIX in
+    sim)
+        rtapi_app exit 
+        ipcrm -M 0x48414c32 2>/dev/null
+        ;;
+    *)
+        for module in $MODULES_UNLOAD ; do
+            $RMMOD $module
+        done
+    esac
+}
+
+CheckUnloaded(){
+# checks to see if all modules were unloaded
+    STATUS=
+    for module in $MODULES_UNLOAD ; do
+	# check to see if the module is installed
+	if /sbin/lsmod | awk '{print $1}' | grep -x $module >/dev/null ; then
+	    echo "ERROR: Could not unload '$module'"
+	    STATUS=error
+	fi
+    done
+    if [ -n "$STATUS" ] ; then
+	exit 1
+    fi
+}
+
+CMD=$1
+
+case "$CMD" in
+  start|load)
+	CheckConfig
+	Load || exit $?
+	CheckLoaded
+	;;
+  restart|reload)
+	CheckConfig
+	CheckMem
+	Unload
+	CheckUnloaded
+	Load || exit $?
+	CheckLoaded
+	;;
+  stop|unload)
+	CheckConfig
+	CheckMem
+	Unload || exit $?
+	;;
+  status)
+	CheckConfig
+	CheckStatus
+	;;
+  *)
+	echo "Usage: $0 {start|load|stop|unload|restart|reload|status}" >&2
+	exit 1
+	;;
+esac
+
+exit 0
+
