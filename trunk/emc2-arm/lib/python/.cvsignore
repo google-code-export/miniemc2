@@ -1,0 +1,5 @@
+nf.py
+*.so
+*.pyc
+*.pyo
+*.sw?

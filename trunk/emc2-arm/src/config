@@ -1,0 +1,8 @@
+CC=arm-none-linux-gnueabi-gcc \
+LD=arm-none-linux-gnueabi-ld \
+CXX=arm-none-linux-gnueabi-g++ \
+ARCHOPTS="-march=armv4t -mtune=arm920t -I/home/ksu/projects/miniemc/kernel/linux-2.6.35.9/" \
+PTH_CONFIG=/home/ksu/projects/miniemc/tools/xenomai/bin/xeno-config \
+EMC2_HOME=/home/emc2 \
+./configure --without-x  --enable-simulator --enable-run-in-place \
+--host=arm-linux --disable-python  --prefix=/home/emc2

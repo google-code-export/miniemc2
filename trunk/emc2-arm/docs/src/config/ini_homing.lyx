@@ -1,0 +1,311 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\language english
+\inputencoding auto
+\fontscheme default
+\graphics default
+\paperfontsize default
+\spacing single 
+\papersize Default
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:Homing}
+
+\end_inset 
+
+Homing
+\layout Subsection
+
+Overview
+\layout Standard
+
+Homing seems simple enough - just move each joint to a known location, and
+ set EMC's internal variables accordingly.
+ However, different machines have different requirements, and homing is
+ actually quite complicated.
+\layout Subsection
+
+Homing Sequence
+\layout Standard
+
+Figure 
+\begin_inset LatexCommand \ref{fig:motion-homing-sequence-diagram}
+
+\end_inset 
+
+ shows four possible homing sequences, along with the associated configuration
+ parameters.
+ For a more detailed description of what each configuration parameter does,
+ see the following section.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename emc2-motion-homing-diag.eps
+	width 7in
+	height 9in
+	keepAspectRatio
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:motion-homing-sequence-diagram}
+
+\end_inset 
+
+Homing Sequences
+\end_inset 
+
+
+\layout Subsection
+
+Configuration
+\layout Standard
+
+There are six pieces of information that determine exactly how the home
+ sequence behaves.
+ They are defined in an [AXIS] section of the inifile.
+\layout Subsubsection
+
+HOME_SEARCH_VEL
+\begin_inset LatexCommand \index{HOME SEARCH VEL}
+
+\end_inset 
+
+
+\layout Standard
+
+The default value is zero.
+ A value of zero causes EMC to assume that there is no home switch; the
+ search stage of homing is skipped.
+ 
+\layout Standard
+
+If 'HOME_SEARCH_VEL' is non-zero, then EMC assumes that there is a home
+ switch.
+ It begins by checking whether the home switch is already tripped.
+ If so, it backs off the switch at HOME_SEARCH_VEL (the direction of the
+ back-off is opposite the sign of HOME_SEARCH_VEL).
+ Then it searches for the home switch by moving in the direction specified
+ by the sign of 'HOME_SEARCH_VEL', at a speed determined by its absolute
+ value.
+ When the home switch is detected, the joint will stop as fast as possible,
+ but there will always be some overshoot.
+ The amount of overshoot depends on the speed.
+ If it is too high, the joint might overshoot enough to hit a limit switch
+ or crash into the end of travel.
+ On the other hand, if 'HOME_SEARCH_VEL' is too low, homing can take a long
+ time.
+\layout Subsubsection
+
+HOME_LATCH_VEL
+\begin_inset LatexCommand \index{HOME LATCH VEL}
+
+\end_inset 
+
+
+\layout Standard
+
+Specifies the speed and direction that EMC uses when it makes its final
+ accurate determination of the home switch (if present) and index pulse
+ location (if present).
+ It will usually be slower than the search velocity to maximise accuracy.
+ If HOME_SEARCH_VEL and HOME_LATCH_VEL have the same sign, then the latch
+ phase is done while moving in the same direction as the search phase.
+ (In that case, EMC first backs off the switch, before moving towards it
+ again at the latch velocity.) If HOME_SEARCH_VEL and HOME_LATCH_VEL have
+ opposite signs, the latch phase is done while moving in the opposite direction
+ from the search phase.
+ That means EMC will latch the first pulse after it moves off the switch.
+ If 'HOME_SEARCH_VEL' is zero (meaning there is no home switch), and this
+ parameter is nonzero, EMC goes ahead to the index pulse search.
+ If 'HOME_SEARCH_VEL' is non-zero and this parameter is zero, it is an error
+ and the homing operation will fail.
+ The default value is zero.
+\layout Subsubsection
+
+HOME_IGNORE_LIMITS
+\begin_inset LatexCommand \index{HOME IGNORE LIMITS}
+
+\end_inset 
+
+
+\layout Standard
+
+Can hold the values YES / NO.
+ This flag determines whether EMC will ignore the limit switch inputs.
+ Some machine configurations do not use a separate home switch, instead
+ they route one of the limit switch signals to the home switch input as
+ well.
+ In this case, EMC needs to ignore that limit during homing.
+ The default value for this parameter is NO.
+\layout Subsubsection
+
+HOME_USE_INDEX
+\begin_inset LatexCommand \index{HOME USE INDEX}
+
+\end_inset 
+
+
+\layout Standard
+
+Specifies whether or not there is an index pulse.
+ If the flag is true (HOME_USE_INDEX = YES), EMC will latch on the rising
+ edge of the index pulse.
+ If false, EMC will latch on either the rising or falling edge of the home
+ switch (depending on the signs of 'HOME_SEARCH_VEL' and 'HOME_LATCH_VEL').
+ The default value is NO.
+\layout Subsubsection
+
+HOME_OFFSET
+\begin_inset LatexCommand \index{HOME OFFSET}
+
+\end_inset 
+
+
+\layout Standard
+
+Contains the location of the home switch or index pulse, in joint coordinates.
+ It can also be treated as the distance between the point where the switch
+ or index pulse is latched and the zero point of the joint.
+ After detecting the index pulse, EMC sets the joint coordinate of the current
+ point to 
+\begin_inset Quotes eld
+\end_inset 
+
+HOME_OFFSET
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ The default value is zero.
+\layout Subsubsection
+
+HOME
+\begin_inset LatexCommand \index{HOME}
+
+\end_inset 
+
+
+\layout Standard
+
+The position that the joint will go to upon completion of the homing sequence.
+ After detecting the index pulse, and setting the coordinate of that point
+ to 
+\begin_inset Quotes eld
+\end_inset 
+
+HOME_OFFSET
+\begin_inset Quotes erd
+\end_inset 
+
+, EMC makes a move to "HOME" as the final step of the homing process.
+ The default value is zero.
+ Note that even if this parameter is the same as 
+\begin_inset Quotes eld
+\end_inset 
+
+HOME_OFFSET
+\begin_inset Quotes erd
+\end_inset 
+
+, the axis will slightly overshoot the latched position as it stops.
+ Therefore there will always be a small move at this time (unless HOME_SEARCH_VE
+L is zero, and the entire search/latch stage was skipped).
+ This final move will be made at the joint's maximum velocity.
+ Since the axis is now homed, there should be no risk of crashing the machine,
+ and a rapid move is the quickest way to finish the homing sequence.
+ 
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+The distinction between 'home' and 'home_offset' is not as clear as I would
+ like.
+ I intend to make a small drawing and example to help clarify it.
+\end_inset 
+
+
+\layout Subsubsection
+
+HOME_IS_SHARED
+\begin_inset LatexCommand \index{HOME IS SHARED}
+
+\end_inset 
+
+
+\layout Standard
+
+If there is not a separate home switch input for this axis, but a number
+ of momentary switches wired to the same pin, set this value to 1 to prevent
+ homing from starting if one of the shared switches is already closed.
+ Set this value to 0 to permit homing even if the switch is already closed.
+\layout Subsubsection
+
+HOME_SEQUENCE
+\begin_inset LatexCommand \index{HOME SEQUENCE}
+
+\end_inset 
+
+
+\layout Standard
+
+Used to define a multi-axis homing sequence (
+\begin_inset Quotes eld
+\end_inset 
+
+HOME ALL
+\begin_inset Quotes erd
+\end_inset 
+
+) and enforce homing order (e.g., Z may not be homed if X is not yet homed).
+ An axis may be homed after all axes with a lower HOME_SEQUENCE have already
+ been homed and are at the HOME_OFFSET.
+ If two axes have the same HOME_SEQUENCE, they may be homed at the same
+ time.
+ If HOME_SEQUENCE is -1 or not specified then this joint will not be homed
+ by the HOME ALL sequence.
+ HOME_SEQUENCE numbers start with 0 and there may be no unused numbers.
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+clearpage
+\end_inset 
+
+
+\the_end

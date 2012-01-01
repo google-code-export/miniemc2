@@ -1,0 +1,248 @@
+.PHONY: docs docsclean
+.PHONY: pdfdocs htmldocs install-doc install-doc-pdf install-doc-html
+
+DOC_DIR=../docs
+DOC_SRCDIR=../docs/src
+
+MAN_SRCS := $(sort \
+	$(patsubst %.in,%,$(wildcard $(DOC_DIR)/man/man1/*.1  $(DOC_DIR)/man/man1/*.1.in)) \
+	$(filter-out $(DOC_DIR)/man/man3/skeleton%, $(wildcard $(DOC_DIR)/man/man3/*.3rtapi $(DOC_DIR)/man/man3/*.3hal)) \
+	$(filter-out $(DOC_DIR)/man/man9/skeleton%, $(wildcard $(DOC_DIR)/man/man9/*.9)) \
+	$(COMP_MANPAGES) $(COMP_DRIVER_MANPAGES))
+
+ifneq ($(MANDB),)
+default: $(DOC_DIR)/man/index.db
+$(DOC_DIR)/man/index.db: $(MAN_SRCS)
+	@echo "Updating 'whatis' database"
+	@$(MANDB) $(DOC_DIR)/man
+endif
+
+ifeq ($(BUILD_DOCS),yes)
+DOC_SRCS := \
+	code/Code_Notes.lyx \
+	code/Style_Guide.lyx \
+	gui/axis.lyx \
+	gui/axis_fr.lyx \
+	gui/halui.lyx \
+	gui/mini.lyx \
+	gui/tkemc.lyx \
+	gui/image-to-gcode.lyx \
+	gui/image-to-gcode_fr.lyx \
+	Master_Developer.lyx \
+	Master_Integrator.lyx \
+	Master_User.lyx \
+	Master_User_fr.lyx \
+	common/GPLD_Copyright.lyx \
+	common/Glossary.lyx \
+	common/emc2_introduction.lyx \
+	config/ini_config.lyx \
+	config/ini_homing.lyx \
+	config/emc2hal.lyx \
+	config/stepper.lyx \
+	config/stepconf.lyx \
+	gcode/coordinates.lyx \
+	gcode/main.lyx \
+	gcode/mill_canned.lyx \
+	gcode/tool_compensation.lyx \
+	hal/comp.lyx \
+	hal/drivers.lyx \
+	hal/general_ref.lyx \
+	hal/halshow.lyx \
+	hal/halmodule.lyx \
+	hal/intro.lyx \
+	hal/rtcomps.lyx \
+	hal/tools.lyx \
+	hal/tutorial.lyx \
+	hal/vcp.lyx \
+	install/compiling_emc2.lyx \
+	install/compiling_emc2_fr.lyx \
+	install/installing_emc2.lyx \
+	install/installing_emc2_fr.lyx \
+	ladder/ladder_intro.lyx \
+	ladder/classic_ladder.lyx \
+	motion/kinematics.lyx \
+	motion/pid_theory.lyx \
+	motion/tweaking_steppers.lyx \
+	Master_HAL.lyx
+
+DOC_SRCS_HTML := $(patsubst %.lyx, %.html, $(filter-out Master_%, $(DOC_SRCS)))
+DOC_TARGETS_HTML:=$(addprefix $(DOC_DIR)/html/,$(subst /,_,$(DOC_SRCS_HTML)))
+DOC_TARGETS_XML:=$(patsubst $(DOC_DIR)/html/%.html, objects/%.xml,\
+	 $(DOC_TARGETS_HTML))
+
+MAN_HTML_TARGETS := $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MAN_SRCS))
+PDF_TARGETS := $(addprefix $(DOC_DIR)/,HAL_User_Manual.pdf EMC2_User_Manual.pdf EMC2_Developer_Manual.pdf EMC2_Integrator_Manual.pdf EMC2_Manual_Pages.pdf EMC2_User_Manual_fr.pdf)
+HTML_TARGETS := $(DOC_TARGETS_HTML) $(MAN_HTML_TARGETS) $(DOC_DIR)/html/index.html $(DOC_DIR)/html/index_fr.html $(DOC_DIR)/html/xref.html $(DOC_DIR)/html/xref_fr.html
+
+L2HFLAGS := -init_file src/.latex2html-init -local_icons \
+	-unsegment -link 4 -info 0 -split +0 -html_version 4.0,math,table 
+
+ifeq ($(TRIVIAL_BUILD),no)
+-include $(patsubst %.lyx, depends/%.d, $(DOC_SRCS))
+Makefile: $(patsubst %.lyx, depends/%.d, $(DOC_SRCS))
+endif
+
+ifeq ($(BUILD_DOCS_PDF),yes)
+docs: pdfdocs
+install-doc: install-doc-pdf
+endif
+ifeq ($(BUILD_DOCS_HTML),yes)
+docs: htmldocs
+install-doc: install-doc-html
+endif
+pdfdocs: $(PDF_TARGETS)
+htmldocs: $(HTML_TARGETS) $(MAN_HTML_TARGETS)
+
+MAN_SRCS_NOSO := $(patsubst $(DOC_DIR)/man/%,%, \
+			$(shell grep -L '^\.so ' $(sort $(MAN_SRCS))))
+PDF_MAN_ORDER := man1/emc.1 \
+	$(filter-out %/emc.1, \
+			$(filter man1/%, $(MAN_SRCS_NOSO))) \
+	man3/intro.3hal \
+	$(filter-out %/undocumented.3hal %/intro.3hal, \
+			$(filter man3/%.3hal, $(MAN_SRCS_NOSO))) \
+	man3/undocumented.3hal \
+	man3/intro.3rtapi \
+	$(filter-out %/undocumented.3rtapi %/intro.3rtapi, \
+			$(filter man3/%.3rtapi, $(MAN_SRCS_NOSO))) \
+	man3/undocumented.3rtapi \
+	$(filter man9/%, $(MAN_SRCS_NOSO)) \
+
+$(DOC_DIR)/EMC2_Manual_Pages.pdf: $(MAN_SRCS) objects/var-PDF_MAN_ORDER
+	@echo Formatting manual pages as PDF
+	(cd $(DOC_DIR)/man; groff -t -rC1 -rD1 -Tps -man $(PDF_MAN_ORDER)) \
+		| ps2pdf - $@
+
+$(DOC_DIR)/HAL_User_Manual.pdf: $(DOC_SRCDIR)/Master_HAL.pdf
+	@ln -f $< $@
+$(DOC_DIR)/EMC2_User_Manual.pdf: $(DOC_SRCDIR)/Master_User.pdf
+	@ln -f $< $@
+$(DOC_DIR)/EMC2_User_Manual_fr.pdf: $(DOC_SRCDIR)/Master_User_fr.pdf
+	@ln -f $< $@
+$(DOC_DIR)/EMC2_Developer_Manual.pdf: $(DOC_SRCDIR)/Master_Developer.pdf
+	@ln -f $< $@
+$(DOC_DIR)/EMC2_Integrator_Manual.pdf: $(DOC_SRCDIR)/Master_Integrator.pdf
+	@ln -f $< $@
+
+$(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/%
+	@echo Formatting $(notdir $<) as HTML
+	@mkdir -p $(dir $@)
+	@(cd $(DOC_DIR)/man; groff -Thtml -man $(patsubst $(DOC_DIR)/man/%,%,$<)) > $@
+
+ST := style=\"-moz-column-width: 25ex; -moz-column-gap: 4ex; list-style-type: none\"
+
+objects/index.incl: objects/var-MAN_HTML_TARGETS $(DOC_SRCDIR)/Submakefile
+	echo "<LI>Commands and userspace components<UL $(ST)>" > $@.tmp
+	for i in $(filter %.1.html, $(MAN_HTML_TARGETS)); do j=$$(basename $$i .html); echo "<LI><A HREF=\"$${i#$(DOC_DIR)/html/}\">$$j</A>"; done >> $@.tmp
+	echo "</UL><LI>Realtime components and kernel modules<UL $(ST)>" >> $@.tmp
+	for i in $(filter %.9.html, $(MAN_HTML_TARGETS)); do j=$$(basename $$i .html); echo "<LI><A HREF=\"$${i#$(DOC_DIR)/html/}\">$$j</A>"; done >> $@.tmp
+	echo "</UL><LI>HAL API calls<UL $(ST)>" >> $@.tmp
+	for i in $(filter %.3hal.html, $(MAN_HTML_TARGETS)); do j=$$(basename $$i .html); echo "<LI><A HREF=\"$${i#$(DOC_DIR)/html/}\">$$j</A>"; done >> $@.tmp
+	echo "</UL><LI>RTAPI calls<UL $(ST)>" >> $@.tmp
+	for i in $(filter %.3rtapi.html, $(MAN_HTML_TARGETS)); do j=$$(basename $$i .html); echo "<LI><A HREF=\"$${i#$(DOC_DIR)/html/}\">$$j</A>"; done >> $@.tmp
+	echo "</UL>" >> $@.tmp
+	mv -f $@.tmp $@
+
+$(DOC_DIR)/html/index_%.html: $(DOC_SRCDIR)/index_%.tmpl ../VERSION $(DOC_SRCDIR)/index.foot
+	cat $(filter-out ../VERSION, $^) | \
+		sed "s/@VERSION@/`cat ../VERSION`/" > $@	
+	
+$(DOC_DIR)/html/index.html: $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot ../VERSION $(DOC_SRCDIR)/Submakefile
+	(cat $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot) | sed "s/@VERSION@/`cat ../VERSION`/" > $@	
+$(DOC_SRCDIR)/%.pdf: $(DOC_SRCDIR)/%.lyx
+	$(ECHO) Building $@
+	@rm -f $@
+	@$(LYX) --export pdf2 $<
+	@test -f $@
+
+depends/%.d: $(DOC_SRCDIR)/%.lyx $(DOC_SRCDIR)/lyxdep.py
+	$(ECHO) Depending $<
+	@mkdir -p $(dir $@)
+	@$(PYTHON) $(DOC_SRCDIR)/lyxdep.py $< $@ $(DOC_DIR)/html/$*/index.html > $@
+
+define lyx2xml
+python $(DOC_SRCDIR)/lyxtree.py --imagedir=$(DOC_DIR)/html -o objects/$(1)_$(2).xml $(3)
+endef
+
+XMLDEP := $(DOC_SRCDIR)/lyxtree.py $(DOC_SRCDIR)/lyxparser.py
+
+$(filter objects/hal_%.xml,$(DOC_TARGETS_XML)): objects/hal_%.xml: $(DOC_SRCDIR)/hal/%.lyx $(XMLDEP)
+	$(call lyx2xml,hal,$*,$<)
+$(filter objects/code_%.xml,$(DOC_TARGETS_XML)): objects/code_%.xml: $(DOC_SRCDIR)/code/%.lyx $(XMLDEP)
+	$(call lyx2xml,code,$*,$<)
+$(filter objects/common_%.xml,$(DOC_TARGETS_XML)): objects/common_%.xml: $(DOC_SRCDIR)/common/%.lyx $(XMLDEP)
+	$(call lyx2xml,common,$*,$<)
+$(filter objects/config_%.xml,$(DOC_TARGETS_XML)): objects/config_%.xml: $(DOC_SRCDIR)/config/%.lyx $(XMLDEP)
+	$(call lyx2xml,config,$*,$<)
+$(filter objects/gcode_%.xml,$(DOC_TARGETS_XML)): objects/gcode_%.xml: $(DOC_SRCDIR)/gcode/%.lyx $(XMLDEP)
+	$(call lyx2xml,gcode,$*,$<)
+$(filter objects/gui_%.xml,$(DOC_TARGETS_XML)): objects/gui_%.xml: $(DOC_SRCDIR)/gui/%.lyx $(XMLDEP)
+	$(call lyx2xml,gui,$*,$<)
+$(filter objects/install_%.xml,$(DOC_TARGETS_XML)): objects/install_%.xml: $(DOC_SRCDIR)/install/%.lyx $(XMLDEP)
+	$(call lyx2xml,install,$*,$<)
+$(filter objects/ladder_%.xml,$(DOC_TARGETS_XML)): objects/ladder_%.xml: $(DOC_SRCDIR)/ladder/%.lyx $(XMLDEP)
+	$(call lyx2xml,ladder,$*,$<)
+$(filter objects/motion_%.xml,$(DOC_TARGETS_XML)): objects/motion_%.xml: $(DOC_SRCDIR)/motion/%.lyx $(XMLDEP)
+	$(call lyx2xml,motion,$*,$<)
+$(filter objects/quickstart_%.xml,$(DOC_TARGETS_XML)): objects/quickstart_%.xml: $(DOC_SRCDIR)/quickstart/%.lyx $(XMLDEP)
+	$(call lyx2xml,quickstart,$*,$<)
+
+DOC_TARGETS_XML_FR := $(filter %_fr.xml, $(DOC_TARGETS_XML))
+DOC_TARGETS_XML_EN := $(filter-out $(DOC_TARGETS_FR), $(DOC_TARGETS_XML))
+
+objects/xref_fr.xml: $(DOC_TARGETS_XML_FR) $(DOC_SRCDIR)/xref.py
+	(cd objects; ../../docs/src/xref.py $(filter %.xml, $(patsubst objects/%,%,$^))) > $@
+objects/xref.xml: $(DOC_TARGETS_XML_EN) $(DOC_SRCDIR)/xref.py
+	(cd objects; ../../docs/src/xref.py $(filter %.xml, $(patsubst objects/%,%,$^))) > $@
+
+$(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: objects/%.xml objects/xref.xml $(DOC_SRCDIR)/l2h.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
+	$(ECHO) Converting $< to HTML
+	@xsltproc --stringparam docname "$*" --path objects -o $@ $(DOC_SRCDIR)/l2h.xsl $<
+
+$(DOC_DIR)/html/xref.html: objects/xref.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
+	$(ECHO) Converting $< to HTML
+	@xsltproc --stringparam docname "xref" --stringparam language english --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
+	
+default: docs
+$(DOC_DIR)/html/xref_fr.html: objects/xref_fr.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
+	$(ECHO) Converting $< to HTML
+	@xsltproc --stringparam docname "xref_fr" --stringparam language french --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
+	
+default: docs
+
+install-doc-pdf:
+	$(DIR) $(DESTDIR)$(docsdir)
+	$(FILE) $(PDF_TARGETS) $(DESTDIR)$(docsdir)
+
+install-doc-html:
+	$(DIR) $(DESTDIR)$(docsdir)
+	cp -a $(DOC_DIR)/html $(DESTDIR)$(docsdir)
+install-kernel-indep: install-doc
+else
+docs:
+	$(error Cannot build documents, missing LyX or some other required program, or explicitly disabled in configure)
+
+endif
+    
+docclean:
+	-rm -f $(DOC_DIR)/HAL_User_Manual.pdf
+	-rm -f $(DOC_DIR)/EMC2_User_Manual.pdf
+	-rm -f $(DOC_DIR)/EMC2_Developer_Manual.pdf
+	-rm -f $(DOC_DIR)/EMC2_Integrator_Manual.pdf
+	-rm -f $(DOC_SRCDIR)/*.d
+	-rm -f $(DOC_SRCDIR)/*.pdf
+	-rm -f $(DOC_TARGETS_HTML) $(DOC_DIR)/html/xref*.html $(DOC_DIR)/html/index*.html $(DOC_DIR)/*.png
+
+MAN_DEPS := $(patsubst $(DOC_DIR)/man/%, depends/%.d, $(MAN_SRCS))
+$(MAN_DEPS): depends/%.d: $(DOC_DIR)/man/%
+	@echo Depending $(notdir $<)
+	@mkdir -p $(dir $@)
+	@echo -n "$(DOC_DIR)/html/man/$*.html: $<" > $@.tmp
+	@grep '^\.so ' $< | awk '{printf " \\\n\t$(DOC_DIR)/man/%s", $$2}' >> $@.tmp
+	@echo >> $@.tmp
+	@mv -f $@.tmp $@
+
+ifeq ($(TRIVIAL_BUILD),no)
+-include $(MAN_DEPS)
+Makefile: $(MAN_DEPS)
+endif

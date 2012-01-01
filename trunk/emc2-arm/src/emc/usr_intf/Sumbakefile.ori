@@ -1,0 +1,90 @@
+#ifdef USE_FOR_ARM
+#EMCSHSRCS := emc/usr_intf/emcsh.cc \
+#             emc/usr_intf/shcom.cc
+EMCRSHSRCS := emc/usr_intf/emcrsh.cc \
+              emc/usr_intf/shcom.cc
+EMCLCDSRCS := emc/usr_intf/emclcd.cc \
+              emc/usr_intf/shcom.cc \
+              emc/usr_intf/sockets.c
+IOSHSRCS := emc/usr_intf/iosh.cc \
+	emc/motion/usrmotintf.cc \
+	emc/motion/emcmotglb.c \
+	emc/motion/emcmotutil.c
+
+USRMOTSRCS := \
+	emc/usr_intf/usrmot.c \
+	emc/motion/usrmotintf.cc \
+	emc/motion/emcmotglb.c \
+	emc/motion/emcmotutil.c
+
+HALUISRCS := emc/usr_intf/halui.cc
+ifeq "$(HAVE_NCURSES)" "yes"
+KEYSTICKSRCS := emc/usr_intf/keystick.cc
+endif
+ifeq "$(HAVE_XAW)" "yes"
+XEMCSRCS := emc/usr_intf/xemc.cc
+endif
+
+TCLSRCS := emc/usr_intf/emcsh.cc emc/usr_intf/iosh.cc
+USERSRCS += $(EMCRSHSRCS) $(EMCLCDSRCS) $(IOSHSRCS) $(USRMOTSRCS) $(HALUISRCS) $(KEYSTICKSRCS)
+
+ifeq "$(HAVE_NCURSES)" "yes"
+USERSRCS += $(KEYSTICKSRCS)
+endif
+
+ifeq "$(HAVE_XAW)" "yes"
+USERSRCS += $(XEMCSRCS)
+endif
+
+$(call TOOBJSDEPS, $(TCLSRCS)) : EXTRAFLAGS = $(ULFLAGS) $(TCL_CFLAGS)
+
+
+#../bin/emcsh: $(call TOOBJS, $(EMCSHSRCS)) ../lib/libemc.a ../lib/libemcini.so.0 ../lib/libnml.so.0
+#	$(ECHO) Linking $(notdir $@)
+#	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $(TCL_CFLAGS) $^ $(TCL_LIBS)
+#TARGETS += ../bin/emcsh
+
+
+../bin/emcrsh: $(call TOOBJS, $(EMCRSHSRCS)) ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemcini.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ -lpthread
+TARGETS += ../bin/emcrsh
+
+../bin/emclcd: $(call TOOBJS, $(EMCLCDSRCS)) ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemcini.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^
+TARGETS += ../bin/emclcd
+
+
+../bin/iosh: $(call TOOBJS, $(IOSHSRCS)) ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemchal.so.0 ../lib/libemcini.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $(TCL_CFLAGS) $^ $(TCL_LIBS)
+TARGETS += ../bin/iosh
+
+../bin/usrmot: $(call TOOBJS, $(USRMOTSRCS)) ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemchal.so.0 ../lib/libemcini.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^
+TARGETS += ../bin/usrmot
+
+../bin/halui: $(call TOOBJS, $(HALUISRCS)) ../lib/libemc.a ../lib/libemcini.so.0 ../lib/libnml.so.0 ../lib/libemchal.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ 
+TARGETS += ../bin/halui
+
+ifeq "$(HAVE_NCURSES)" "yes"
+../bin/keystick: $(call TOOBJS, $(KEYSTICKSRCS)) ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemcini.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ $(KEYSTICKLIBS)
+TARGETS += ../bin/keystick
+endif
+
+ifeq "$(HAVE_XAW)" "yes"
+$(call TOOBJSDEPS,$(XEMCSRCS)): EXTRAFLAGS = $(CFLAGS_X)
+../bin/xemc: $(call TOOBJS, $(XEMCSRCS)) ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemcini.so.0
+	$(ECHO) Linking $(notdir $@)
+	@$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ $(XLIBS)
+TARGETS += ../bin/xemc
+endif
+
+
+#endif

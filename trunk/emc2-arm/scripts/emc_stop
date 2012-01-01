@@ -1,0 +1,4 @@
+#!/bin/sh
+echo "EMC stopped at " `date`
+killall rtapi_app io milltask emcrsh halui emcsvr > /dev/null 2>&1
+#rmmod modminiemc > /dev/null 2>&1

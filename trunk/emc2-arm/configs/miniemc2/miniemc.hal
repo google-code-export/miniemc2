@@ -1,0 +1,75 @@
+# HAL configuration file for miniEMC project. Generated automaticaly, DO NOT edit!
+loadrt trivkins
+# motion controller, get name and thread periods from ini file
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD key=[EMCMOT]SHMEM_KEY num_joints=[TRAJ]AXES
+loadrt miniemcdrv axes_conf="X Y Z A" fifo_deep=32 step_pins=1,3,5,7 dir_pins=2,4,6,8 dir_polarity=1,1,1,1 step_per_unit=320000,320000,320000,320000 io_update_period=1 max_pwm_value=30000 pwm_pin_num=16,17
+# add motion controller functions to servo thread
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+addf update-miniemcdrv servo-thread
+# add some pins
+net TrajWiat motion.traj-wait-ready  <= miniemcdrv.traj-wait-out
+# create HAL signals for position commands from motion module
+# loop position commands back to motion module feedback
+
+net A0pos axis.0.motor-pos-cmd => miniemcdrv.0.cmd-pos
+net A0pos_fb miniemcdrv.0.fb-pos => axis.0.motor-pos-fb
+net A0home miniemcdrv.0.pin-in => axis.0.home-sw-in
+setp miniemcdrv.0.pin-in-inv True
+
+net A1pos axis.1.motor-pos-cmd => miniemcdrv.1.cmd-pos
+net A1pos_fb miniemcdrv.1.fb-pos => axis.1.motor-pos-fb
+net A1home miniemcdrv.1.pin-in => axis.1.home-sw-in
+setp miniemcdrv.1.pin-in-inv True
+
+net A2pos axis.2.motor-pos-cmd => miniemcdrv.2.cmd-pos
+net A2pos_fb miniemcdrv.2.fb-pos => axis.2.motor-pos-fb
+net A2home miniemcdrv.2.pin-in => axis.2.home-sw-in
+setp miniemcdrv.2.pin-in-inv True
+
+net A3pos axis.3.motor-pos-cmd => miniemcdrv.3.cmd-pos
+net A3pos_fb miniemcdrv.3.fb-pos => axis.3.motor-pos-fb
+net A3home miniemcdrv.3.pin-in => axis.3.home-sw-in
+setp miniemcdrv.3.pin-in-inv True
+
+net Enabled axis.0.amp-enable-out =>  miniemcdrv.11.pin-out
+setp miniemcdrv.11.pin-out-inv False
+
+net Spindled motion.spindle-on =>  miniemcdrv.0.pin-out
+setp miniemcdrv.0.pin-out-inv False
+
+# No EStop is used
+#setp iocontrol.0.emc-enable-in True
+net EStop iocontrol.0.emc-enable-in <= miniemcdrv.18.pin-in
+setp miniemcdrv.18.pin-in-inv False
+
+net SSpindlePWM motion.spindle-speed-out => miniemcdrv.0.pwm-in
+
+# create motion IO signals
+net Input4 miniemcdrv.4.pin-in => motion.digital-in-04
+net Input5 miniemcdrv.5.pin-in => motion.digital-in-05
+net Input6 miniemcdrv.6.pin-in => motion.digital-in-06
+net Input7 miniemcdrv.7.pin-in => motion.digital-in-07
+net Input8 miniemcdrv.8.pin-in => motion.digital-in-08
+net Input9 miniemcdrv.9.pin-in => motion.digital-in-09
+net Input10 miniemcdrv.10.pin-in => motion.digital-in-10
+net Input11 miniemcdrv.11.pin-in => motion.digital-in-11
+net Input12 miniemcdrv.12.pin-in => motion.digital-in-12
+net Input13 miniemcdrv.13.pin-in => motion.digital-in-13
+net Input14 miniemcdrv.14.pin-in => motion.digital-in-14
+net Input15 miniemcdrv.15.pin-in => motion.digital-in-15
+net Input16 miniemcdrv.16.pin-in => motion.digital-in-16
+net Input17 miniemcdrv.17.pin-in => motion.digital-in-17
+
+
+
+net Output9 motion.digital-out-09 => miniemcdrv.9.pin-out
+net Output10 motion.digital-out-10 => miniemcdrv.10.pin-out
+net Output12 motion.digital-out-12 => miniemcdrv.12.pin-out
+#net Output16 motion.digital-out-16 => miniemcdrv.16.pin-out
+#net Output17 motion.digital-out-17 => miniemcdrv.17.pin-out
+net Output18 motion.digital-out-18 => miniemcdrv.18.pin-out
+
+# create signals for tool loading loopback
+net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed

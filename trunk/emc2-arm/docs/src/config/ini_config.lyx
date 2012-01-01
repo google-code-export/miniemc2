@@ -1,0 +1,2274 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\begin_preamble
+\usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
+\end_preamble
+\language english
+\inputencoding default
+\fontscheme bookman
+\graphics default
+\float_placement !!h
+\paperfontsize 10
+\spacing single 
+\papersize Custom
+\paperpackage a4
+\use_geometry 1
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\paperwidth 8.5in
+\paperheight 11in
+\leftmargin 1.2in
+\topmargin 1in
+\rightmargin 0.6in
+\bottommargin 0.6in
+\secnumdepth 5
+\tocdepth 5
+\paragraph_separation skip
+\defskip medskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 2
+\paperpagestyle default
+
+\layout Chapter
+
+INI Configuration
+\layout Section
+
+Files Used for Configuration
+\layout Standard
+
+The EMC is configured with human readable text files.
+ All of these files can be read and edited in any of the common text file
+ editors available with most any Linux distribution.
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+Don't confuse a text editor with a word processor.
+ A text editor like gedit or kwrite produce files that are plain text.
+ They also produce lines of text that are separated from each other.
+ A word processor like Open Office produce files with paragraphs and word
+ wrapping and lots of embedded codes that control font size and such.
+ A text editor does none of this.
+\end_inset 
+
+ You'll need to be a bit careful when you edit these files.
+ Some mistakes will cause the startup to fail.
+ These files are read whenever the software starts up.
+ Some of them are read repeatedly while the CNC is running.
+ 
+\layout Standard
+
+Configuration files include
+\layout Description
+
+INI
+\begin_inset LatexCommand \index{INI}
+
+\end_inset 
+
+ The ini file overrides defaults that are compiled into the EMC code.
+ It also provides sections that are read directly by the Hardware Abstraction
+ Layer.
+\layout Description
+
+HAL
+\begin_inset LatexCommand \index{HAL}
+
+\end_inset 
+
+ The hal files start up process modules and provide linkages between EMC
+ signals and specific hardware pins.
+\layout Description
+
+VAR
+\begin_inset LatexCommand \index{VAR}
+
+\end_inset 
+
+ The var file provide a set of numbered variables (
+\begin_inset Quotes eld
+\end_inset 
+
+parameters
+\begin_inset Quotes erd
+\end_inset 
+
+) for use by the interpreter.
+ These values are saved from one run to another.
+ See section 
+\begin_inset LatexCommand \ref{sub:Parameters}
+
+\end_inset 
+
+.
+\layout Description
+
+TBL
+\begin_inset LatexCommand \index{TBL}
+
+\end_inset 
+
+ The tbl file saves tool information.
+ See section 
+\begin_inset LatexCommand \ref{sub:Tool-File}
+
+\end_inset 
+
+.
+\layout Description
+
+NML
+\begin_inset LatexCommand \index{NML}
+
+\end_inset 
+
+ The nml file configures the communication channels used by the EMC.
+ It is normally setup to run all of the communication within a single computer
+ but can be modified to communicate between several computers.
+\layout Description
+
+.emcrc
+\begin_inset LatexCommand \index{.emcrc}
+
+\end_inset 
+
+ This file saves user specific information and is created to save the name
+ of the directory when the user first selects an EMC configuration.
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+Usually this file is in the users home directory (e.g.
+ /home/user/ )
+\end_inset 
+
+
+\layout Standard
+
+Items marked 
+\series bold 
+\noun on 
+(hal)
+\series default 
+\noun default 
+ are used only by the sample HAL files and are suggested as a good convention.
+ Other items are used by EMC directly, and must always have the section
+ and item names given.
+\layout Section
+
+The INI File Layout
+\layout Standard
+
+A typical INI file follows a rather simple layout that includes;
+\layout Itemize
+
+comments.
+\layout Itemize
+
+sections, 
+\layout Itemize
+
+variables.
+\layout Standard
+
+Each of these elements is separated on single lines.
+ Each end of line or newline character creates a new element.
+ 
+\layout Subsection
+
+Comments
+\begin_inset LatexCommand \index{comments}
+
+\end_inset 
+
+
+\layout Standard
+
+A comment line is started with a ; or a # mark.
+ When the ini reader sees either of these marks at the start a line, the
+ rest of the line is ignored by the software.
+ Comments can be used to describe what some INI element will do.
+ 
+\layout LyX-Code
+
+; This is my little mill configuration file.
+\newline 
+; I set it up on January 12, 2006
+\layout Standard
+
+Comments can also be used to select between several values of a single variable.
+ 
+\layout LyX-Code
+
+# DISPLAY = tkemc
+\begin_inset LatexCommand \index{tkemc}
+
+\end_inset 
+
+
+\newline 
+DISPLAY = axis
+\begin_inset LatexCommand \index{AXIS}
+
+\end_inset 
+
+
+\newline 
+# DISPLAY = mini
+\begin_inset LatexCommand \index{mini}
+
+\end_inset 
+
+
+\newline 
+# DISPLAY = keystick
+\begin_inset LatexCommand \index{keystick}
+
+\end_inset 
+
+
+\layout Standard
+
+In this list, the DISPLAY
+\begin_inset LatexCommand \index{DISPLAY}
+
+\end_inset 
+
+ variable will be set to axis because all of the others are commented out.
+ If someone carelessly edits a list like this and leaves two of the lines
+ uncommented, the first one encountered will be used.
+\layout Standard
+
+Note that inside a variable, the 
+\begin_inset Quotes eld
+\end_inset 
+
+#
+\begin_inset Quotes erd
+\end_inset 
+
+ and 
+\begin_inset Quotes eld
+\end_inset 
+
+;
+\begin_inset Quotes erd
+\end_inset 
+
+ characters do not denote comments:
+\layout LyX-Code
+
+INCORRECT = value     # and a comment
+\layout Subsection
+
+Sections
+\layout Standard
+
+Related parts of an ini file are separated into sections.
+ A section line looks like [THIS_SECTION].
+ The name of the section is enclosed in brackets.
+ The order of sections is unimportant.
+ The following sections are used by emc:
+\layout Itemize
+
+[EMC] general information (
+\begin_inset LatexCommand \ref{sub:[EMC]-Section}
+
+\end_inset 
+
+)
+\layout Itemize
+
+[DISPLAY] settings related to the graphical user interface (
+\begin_inset LatexCommand \ref{sub:[DISPLAY]-Section}
+
+\end_inset 
+
+)
+\layout Itemize
+
+[RS274NGC] settings used by the g-code interpreter
+\layout Itemize
+
+[EMCMOT] settings used by the realtime motion controller (
+\begin_inset LatexCommand \ref{sub:[EMCMOT]-Section}
+
+\end_inset 
+
+)
+\layout Itemize
+
+[HAL] specifies .hal files (
+\begin_inset LatexCommand \ref{sub:[HAL]-section}
+
+\end_inset 
+
+)
+\layout Itemize
+
+[TASK] settings used by the task controller (
+\begin_inset LatexCommand \ref{sub:[TASK]-Section}
+
+\end_inset 
+
+)
+\layout Itemize
+
+[TRAJ] additional settings used by the realtime motion controller (
+\begin_inset LatexCommand \ref{sub:[TRAJ]-Section}
+
+\end_inset 
+
+)
+\layout Itemize
+
+[AXIS_0] ...
+ [AXIS_n] individual axis variables (
+\begin_inset LatexCommand \ref{sub:[AXIS]-Section}
+
+\end_inset 
+
+)
+\layout Itemize
+
+[EMCIO] settings used by the I/O Controller (
+\begin_inset LatexCommand \ref{sub:[EMCIO]-Section}
+
+\end_inset 
+
+)
+\layout Subsection
+
+Variables
+\layout Standard
+
+A variable line is made up of a variable name, an equals sign(=), and a
+ value.
+ 
+\color black
+Everything from the first non-whitespace character after the = up to the
+ end of the line is passed as the value, so you can embed spaces in string
+ symbols if you want to or need to.
+ A variable name is often called a keyword.
+\layout Standard
+
+
+\color black
+The following sections detail each section of the configuration file, using
+ sample values for the configuration lines.
+\layout Standard
+
+Some of the variables are used by EMC, and must always use the section names
+ and variable names shown.
+ Other variables are used only by HAL, and the section names and variable
+ names shown are those used in the sample configuration files.
+\layout Section
+
+
+\begin_inset LatexCommand \label{sub:INI-Detail}
+
+\end_inset 
+
+INI Variable Definitions
+\layout Subsection
+
+
+\color black
+[EMC] Section
+\begin_inset LatexCommand \label{sub:[EMC]-Section}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{EMC (inifile section)}
+
+\end_inset 
+
+
+\layout Description
+
+
+\color black
+VERSION\SpecialChar ~
+
+\series bold 
+=
+\series default 
+\SpecialChar ~
+
+\series bold 
+$Revision:
+\series default 
+\SpecialChar ~
+
+\series bold 
+1.3
+\series default 
+\SpecialChar ~
+
+\series bold 
+$
+\series default 
+ The version number for the INI file.
+ The value shown here looks odd because it is automatically updated when
+ using the Revision Control System.
+ It's a good idea to change this number each time you revise your file.
+ If you want to edit this manually just change the number and leave the
+ other tags alone.
+ 
+\layout Description
+
+
+\color black
+MACHINE\SpecialChar ~
+
+\series bold 
+=
+\series default 
+\SpecialChar ~
+
+\series bold 
+My
+\series default 
+\SpecialChar ~
+
+\series bold 
+Controller
+\series default 
+ This is the name of the controller, which is printed out at the top of
+ most graphical interfaces.
+ You can put whatever you want here as long as you make it a single line
+ long.
+\layout Description
+
+
+\color black
+RS274NGC_STARTUP_CODE
+\begin_inset LatexCommand \index{RS274NGC STARTUP CODE}
+
+\end_inset 
+
+\SpecialChar ~
+
+\series bold 
+=
+\series default 
+\SpecialChar ~
+
+\series bold 
+G21
+\series default 
+\SpecialChar ~
+
+\series bold 
+G90
+\series default 
+ A string of NC codes that the interpreter is initialized with.
+ This is not a substitute for specifying modal g-codes at the top of each
+ ngc file, beacause the modal codes of machines differ, and may be changed
+ by g-code interpreted earlier in the session.
+\layout Subsection
+
+
+\color black
+[DISPLAY] Section
+\begin_inset LatexCommand \label{sub:[DISPLAY]-Section}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{DISPLAY (inifile section)}
+
+\end_inset 
+
+
+\layout Standard
+
+Different user interface programs use different options, and not every option
+ is supported by every user interface.
+\layout Standard
+
+
+\series bold 
+\color black
+DISPLAY\SpecialChar ~
+=\SpecialChar ~
+tkemc
+\series default 
+ The name of the user interface to use.
+ Valid options may include:
+\layout Itemize
+
+axis
+\layout Itemize
+
+
+\color black
+keystick
+\layout Itemize
+
+mini
+\layout Itemize
+
+
+\color black
+tkemc
+\layout Itemize
+
+
+\color black
+xemc
+\layout Description
+
+POSITION_OFFSET\SpecialChar ~
+=\SpecialChar ~
+RELATIVE The coordinate system (RELATIVE or MACHINE) to
+ show when the user interface starts.
+ The RELATIVE coordinate system reflects the G92 and G5x coordinate offsets
+ currently in effect.
+\layout Description
+
+POSITION_FEEDBACK\SpecialChar ~
+=\SpecialChar ~
+ACTUAL The coordinate value (COMMANDED or ACTUAL) to show
+ when the user interface starts.
+ The COMMANDED position is the ideal position requested by emc.
+ The ACTUAL position is the feedback position of the motors.
+\layout Description
+
+MAX_FEED_OVERRIDE\SpecialChar ~
+=\SpecialChar ~
+1.2 The maximum feed override the user may select.
+ 1.2 means 120% of the programmed feed rate
+\layout Description
+
+MIN_SPINDLE_OVERRIDE\SpecialChar ~
+=\SpecialChar ~
+0.5 The minimum spindle override the user may select.
+ 0.5 means 50% of the programmed spindle speed.
+ (This is useful as it's dangerous to run a program with a too low spindle
+ speed).
+\layout Description
+
+MAX_SPINDLE_OVERRIDE\SpecialChar ~
+=\SpecialChar ~
+1.0 The maximum spindle override the user may select.
+ 1.0 means 100% of the programmed spindle speed
+\layout Description
+
+DEFAULT_LINEAR_VELOCITY\SpecialChar ~
+=\SpecialChar ~
+.25 The default velocity for linear jogs, in machine
+ units per second.
+ Only in the AXIS user interface.
+\layout Description
+
+MAX_LINEAR_VELOCITY\SpecialChar ~
+=\SpecialChar ~
+1.0 The maximum velocity for linear jogs, in machine
+ units per second.
+ Only in the AXIS user interface.
+\layout Description
+
+DEFAULT_ANGULAR_VELOCITY\SpecialChar ~
+=\SpecialChar ~
+.25 The default velocity for angular jogs, in machine
+ units per second.
+ Only in the AXIS user interface.
+\layout Description
+
+MAX_ANGULAR_VELOCITY\SpecialChar ~
+=\SpecialChar ~
+1.0 The maximum velocity for angular jogs, in machine
+ units per second.
+ Only in the AXIS user interface.
+\layout Description
+
+PROGRAM_PREFIX\SpecialChar ~
+=\SpecialChar ~
+~/emc2/nc_files The default location for g-code files and
+ the location for user-defined M-codes
+\layout Description
+
+INCREMENTS\SpecialChar ~
+=\SpecialChar ~
+1\SpecialChar ~
+mm,\SpecialChar ~
+.5\SpecialChar ~
+mm,\SpecialChar ~
+\SpecialChar \ldots{}
+ Defines the increments available for incremental jogs.
+ See section 
+\begin_inset LatexCommand \ref{DISPLAY-INCREMENTS}
+
+\end_inset 
+
+ for more information.
+ Only in the AXIS user interface
+\layout Description
+
+INTRO_GRAPHIC\SpecialChar ~
+=\SpecialChar ~
+emc2.gif The image shown on the splash screen
+\layout Description
+
+INTRO_TIME\SpecialChar ~
+=\SpecialChar ~
+5 The maximum time to show the splash screen
+\layout Description
+
+OPEN_FILE\SpecialChar ~
+=\SpecialChar ~
+/full/path/to/file.ngc The file to show in the preview plot when
+ AXIS starts
+\layout Subsection
+
+
+\color black
+[EMCMOT] Section
+\begin_inset LatexCommand \label{sub:[EMCMOT]-Section}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{EMCMOT (inifile section)}
+
+\end_inset 
+
+
+\layout Description
+
+BASE_PERIOD
+\begin_inset LatexCommand \index{BASE PERIOD}
+
+\end_inset 
+
+\SpecialChar ~
+=\SpecialChar ~
+50000 
+\series bold 
+\noun on 
+(hal)
+\series default 
+\noun default 
+ 
+\begin_inset Quotes eld
+\end_inset 
+
+Base
+\begin_inset Quotes erd
+\end_inset 
+
+ task period, in nanoseconds - this is the fastest thread in the machine.
+\newline 
+On servo-based systems, there is generally no reason for 
+\series bold 
+BASE_PERIOD
+\series default 
+ to be smaller than 
+\series bold 
+SERVO_PERIOD
+\series default 
+.
+ 
+\newline 
+On machines with software step generation, the 
+\series bold 
+BASE_PERIOD
+\series default 
+ determines the maximum number of steps per second.
+ In the absence of long step length and step space requirements, the absolute
+ maximum step rate is one step per 
+\series bold 
+BASE_PERIOD
+\series default 
+.
+ Thus, the 
+\series bold 
+BASE_PERIOD
+\series default 
+ shown above gives an absolute maximum step rate of 20000 steps per second.
+ 50000ns is a fairly conservative value.
+ The smallest usable value is related to the Latency Test result (
+\begin_inset LatexCommand \ref{sec:Latency-Test}
+
+\end_inset 
+
+), the necessary step length, and the processor speed.
+\newline 
+Choosing a BASE_PERIOD that is too low can lead to the 
+\begin_inset Quotes eld
+\end_inset 
+
+Unexpected realtime delay
+\begin_inset Quotes erd
+\end_inset 
+
+ message, lockups, or spontaneous reboots.
+\layout Description
+
+SERVO_PERIOD
+\begin_inset LatexCommand \index{SERVO PERIOD}
+
+\end_inset 
+
+\SpecialChar ~
+=\SpecialChar ~
+1000000 
+\series bold 
+\noun on 
+(hal)
+\series default 
+\noun default 
+ 
+\begin_inset Quotes eld
+\end_inset 
+
+Servo
+\begin_inset Quotes erd
+\end_inset 
+
+ task period is also in nanoseconds.
+ This value will be rounded to an integer multiple of 
+\series bold 
+BASE_PERIOD
+\series default 
+.
+ This value is used even on systems based on stepper motors.
+\newline 
+This is the rate at which new motor positions are computed, following error
+ is checked, PID output values are updated, and so on.
+\newline 
+Most systems will not need to change this value.
+ It is the update rate of the low level motion planner.
+\layout Description
+
+TRAJ_PERIOD
+\begin_inset LatexCommand \index{TRAJ PERIOD}
+
+\end_inset 
+
+\SpecialChar ~
+=\SpecialChar ~
+
+\series bold 
+1000000 
+\noun on 
+(hal)
+\series default 
+\noun default 
+ 
+\series bold 
+Traj
+\series default 
+ectory Planner task period in nanoseconds This value will be rounded to
+ an integer multiple of 
+\series bold 
+SERVO_PERIOD
+\series default 
+.
+\newline 
+Except for machines with unusual kinematics (e.g., hexapods) there is no reason
+ to make this value larger than 
+\series bold 
+SERVO_PERIOD
+\series default 
+.
+\layout Subsection
+
+[TASK] Section
+\begin_inset LatexCommand \label{sub:[TASK]-Section}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{TASK (inifile section)}
+
+\end_inset 
+
+
+\layout Description
+
+CYCLE_TIME\SpecialChar ~
+
+\series bold 
+=
+\series default 
+\SpecialChar ~
+
+\series bold 
+0.0
+\series default 
+01 The period, in seconds, at which EMCTASK will run.
+ This parameter affects the polling interval when waiting for motion to
+ complete, when executing a pause instruction, and when accepting a command
+ from a user interface.
+ There is usually no need to change this number.
+\layout Subsection
+
+[HAL] section
+\begin_inset LatexCommand \label{sub:[HAL]-section}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{HAL (inifile section)}
+
+\end_inset 
+
+
+\layout Description
+
+HALFILE\SpecialChar ~
+=\SpecialChar ~
+example.hal Execute the file 'example.hal' at startup.
+ If 
+\series bold 
+HALFILE
+\series default 
+ is specified multiple times, the files are executed in the order they appear
+ in the inifile.
+ Almost all configurations will have at least one 
+\series bold 
+HALFILE
+\series default 
+, and stepper systems typically have two such files, one which specifies
+ the generic stepper configuration (
+\family typewriter 
+core_stepper.hal
+\family default 
+) and one which specifies the machine pinout (
+\family typewriter 
+xxx_pinout.hal
+\family default 
+)
+\layout Description
+
+HAL\SpecialChar ~
+=\SpecialChar ~
+command
+\emph on 
+ 
+\emph default 
+Execute 'command' as a single hal command.
+ If 
+\series bold 
+HAL
+\series default 
+ is specified multiple times, the commands are executed in the order they
+ appear in the inifile.
+ 
+\series bold 
+HAL
+\series default 
+ lines are executed after all 
+\series bold 
+HALFILE
+\series default 
+ lines.
+\layout Description
+
+SHUTDOWN\SpecialChar ~
+=\SpecialChar ~
+shutdown.hal Execute the file 'shutdown.hal' when emc is exiting.
+ Depending on the hardware drivers used, this may make it possible to set
+ outputs to defined values when emc is exited normally.
+ However, because there is no guarantee this file will be executed (for
+ instance, in the case of a computer crash) it is not a replacement for
+ a proper physical estop chain or other protections against software failure.
+\layout Description
+
+POSTGUI_HALFILE\SpecialChar ~
+=\SpecialChar ~
+example2.hal 
+\emph on 
+(Only with the AXIS GUI)
+\emph default 
+ Execute 'example2.hal' after the GUI has created its HAL pins.
+ See section 
+\begin_inset LatexCommand \ref{sub:Physical-jog-wheels}
+
+\end_inset 
+
+ for more information.
+\layout Subsection
+
+
+\color black
+[TRAJ] Section
+\begin_inset LatexCommand \label{sub:[TRAJ]-Section}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{TRAJ (inifile section)}
+
+\end_inset 
+
+
+\layout Standard
+
+
+\color black
+The [TRAJ] section contains general parameters for the trajectory planning
+ module in EMCMOT.
+ You will not need to change these if you are applying EMC to a common three
+ axis mill in the United States of America.
+ If you are in an area using metric hardware components you might be working
+ with the stepper_mm.ini where these numbers are already setup for that system
+ of units.
+\layout Description
+
+
+\color black
+COORDINATES\SpecialChar ~
+
+\series bold 
+=
+\series default 
+\SpecialChar ~
+
+\series bold 
+X
+\series default 
+\SpecialChar ~
+Y
+\series bold 
+\SpecialChar ~
+Z
+\series default 
+ The names of the axes being controlled.
+ X, Y, Z, A, B, C, U, V, and W are all valid.
+ Only axis named in 
+\series bold 
+COORDINATES
+\series default 
+ are accepted in g-code.
+ This has no effect on the mapping from G-code axis names (X- Y- Z-) to
+ joint numbers--for 
+\begin_inset Quotes eld
+\end_inset 
+
+trivial kinematics
+\begin_inset Quotes erd
+\end_inset 
+
+, X is always joint 0, A is always joint 4, and U is always joint 7, and
+ so on.
+ It is permitted to write an axis name twice (e.g., X Y Y Z for a gantry machine)
+ but this has no effect.
+\layout Description
+
+
+\noun on 
+\color black
+AXES\SpecialChar ~
+=\SpecialChar ~
+3
+\noun default 
+ One more than the number of the highest joint number in the system.
+ For an XYZ machine, the joints are numbered 0, 1 and 2; in this case AXES
+ should be 3.
+ For an XYUV machine using 
+\begin_inset Quotes eld
+\end_inset 
+
+trivial kinematics
+\begin_inset Quotes erd
+\end_inset 
+
+, the V joint is numbered 7 and therefore AXES should be 8.
+ For a machine with nontrivial kinematics (e.g., scarakins) this will generally
+ be the number of controlled joints.
+\layout Description
+
+
+\color black
+HOME\SpecialChar ~
+
+\series bold 
+=
+\series default 
+\SpecialChar ~
+
+\series bold 
+0
+\series default 
+\SpecialChar ~
+
+\series bold 
+0
+\series default 
+\SpecialChar ~
+
+\series bold 
+0 
+\series default 
+Coordinates of the homed position of each axis.
+ Again for a fourth axis you will need 0 0 0 0.
+ This value is only used for machines with nontrivial kinematics.
+ On machines with trivial kinematics this value is ignored.
+\layout Description
+
+
+\color black
+LINEAR_UNITS
+\begin_inset LatexCommand \index{LINEAR UNITS}
+
+\end_inset 
+
+\SpecialChar ~
+
+\series bold 
+=
+\series default 
+\SpecialChar ~
+<units>
+\series bold 
+ 
+\series default 
+The name of units to be used in the inifile.
+ Possible choices are (in, inch, imperial, metric, mm).
+ 
+\newline 
+This does not affect the linear units in NC code (the G20 and G21 words
+ do this).
+ 
+\layout Description
+
+
+\color black
+ANGULAR_UNITS
+\begin_inset LatexCommand \index{ANGULAR UNITS}
+
+\end_inset 
+
+\SpecialChar ~
+
+\series bold 
+=
+\series default 
+\SpecialChar ~
+<units> The name of units used in the inifile.
+ Possible choices are 'deg', 'degree' (360 per circle), 'rad', 'radian'
+ (2pi per circle), 'grad', or 'gon' (400 per circle).
+\newline 
+This does not affect the angular units of NC code.
+ In RS274NGC, A-, B- and C- words are always expressed in degrees.
+\layout Description
+
+
+\color black
+DEFAULT_VELOCITY\SpecialChar ~
+
+\series bold 
+=\SpecialChar ~
+0.0167
+\series default 
+ The initial rate for jogs of linear axes, in units per second.
+ The value shown equals one unit per minute.
+\layout Description
+
+
+\color black
+DEFAULT_ACCELERATION\SpecialChar ~
+
+\series bold 
+=\SpecialChar ~
+2.0
+\series default 
+ In machines with nontrivial kinematics, the acceleration used for 
+\begin_inset Quotes eld
+\end_inset 
+
+teleop
+\begin_inset Quotes erd
+\end_inset 
+
+ (cartesian space) jogs, in user units per second per second.
+ 
+\layout Description
+
+
+\color black
+MAX_VELOCITY
+\begin_inset LatexCommand \index{MAX VELOCITY}
+
+\end_inset 
+
+\SpecialChar ~
+
+\series bold 
+=\SpecialChar ~
+5.0
+\series default 
+ The maximum velocity for any axis or coordinated move, in user units per
+ second.
+ The value shown equals 300 units per minute.
+\layout Description
+
+
+\color black
+MAX_ACCELERATION
+\begin_inset LatexCommand \index{MAX ACCELERATION}
+
+\end_inset 
+
+\SpecialChar ~
+
+\series bold 
+=
+\series default 
+\SpecialChar ~
+
+\series bold 
+20.0
+\series default 
+ The maximum acceleration for any axis or coordinated axis move, in user
+ units per second per second.
+\layout Description
+
+POSITION_FILE\SpecialChar ~
+=\SpecialChar ~
+position.txt If set to a non-empty value, the joint positions
+ are stored between runs in this file.
+ This allows the machine to start with the same coordinates it had on shutdown.
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+This assumes there was no movement of the machine while powered off.
+ It helps on smaller machines without home switches.
+\end_inset 
+
+ If unset, joint positions are not stored and will begin at 0 each time
+ emc is started.
+\layout Subsection
+
+
+\color black
+[AXIS_<num>] Section
+\begin_inset LatexCommand \label{sub:[AXIS]-Section}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{AXIS (inifile section)}
+
+\end_inset 
+
+
+\layout Standard
+
+
+\color black
+The [AXIS_0], [AXIS_1], etc.
+ sections contains general parameters for the individual components in the
+ axis control module.
+ The axis section names begin numbering at 0, and run through the number
+ of axes specified in the [TRAJ] AXES entry minus 1.
+\layout Description
+
+
+\color black
+TYPE\SpecialChar ~
+=\SpecialChar ~
+LINEAR The type of axes, either LINEAR or ANGULAR.
+\layout Description
+
+UNITS
+\begin_inset LatexCommand \index{UNITS}
+
+\end_inset 
+
+\SpecialChar ~
+=\SpecialChar ~
+inch This setting overrides the related [TRAJ] UNITS setting if it is specified.
+ (e.g., [TRAJ]LINEAR_UNITS if the TYPE of this axis is LINEAR, [TRAJ]ANGULAR_UNITS
+ if the TYPE of this axis is ANGULAR)
+\layout Description
+
+MAX_VELOCITY\SpecialChar ~
+=\SpecialChar ~
+1.2 Maximum velocity for this axis in UNITS per second.
+\layout Description
+
+MAX_ACCELERATION\SpecialChar ~
+
+\series bold 
+=
+\series default 
+\SpecialChar ~
+
+\series bold 
+20.0
+\series default 
+ Maximum acceleration for this axis in UNITS per second squared.
+\layout Description
+
+BACKLASH\SpecialChar ~
+
+\series bold 
+=
+\series default 
+\SpecialChar ~
+
+\series bold 
+0.000
+\series default 
+ Backlash compensation value can be used to make up for small deficiencies
+ in the hardware used to drive an axis.
+\layout Description
+
+COMP_FILE\SpecialChar ~
+=\SpecialChar ~
+file.extension A file holding a compensation structure for the
+ specific axis.
+ The values inside are triplets of nominal, forward and reverse positions
+ which correspond to the nominal position (where it should be), forward
+ (where the axis is while travelling forward) and reverse (where the axis
+ is while travelling back).
+ One set of triplets per line.
+ Currently the limit inside EMC2 is for 256 triplets / axis.
+ If COMP_FILE is specified, BACKLASH is ignored.
+\layout Description
+
+COMP_FILE_TYPE\SpecialChar ~
+=\SpecialChar ~
+1 Specifying a non-zero value changes the expected format
+ of the COMP_FILE.
+ For COMP_FILE_TYPE of zero, the values are triplets for nominal, forward
+ & reverse.
+ Otherwise, the values in the COMP_FILE are nominal, forward_trim and reverse_tr
+im.
+ These correspond to the nominal, nominal-forward and nominal-reverse defined
+ above.
+\layout Description
+
+
+\color black
+MIN_LIMIT
+\begin_inset LatexCommand \index{MIN LIMIT}
+
+\end_inset 
+
+\SpecialChar ~
+=\SpecialChar ~
+
+\series bold 
+-1000 
+\series default 
+The minimum limit (soft limit) for axis motion, in user units.
+ When this limit is exceeded, the controller aborts axis motion.
+ 
+\layout Description
+
+
+\color black
+MAX_LIMIT
+\begin_inset LatexCommand \index{MAX LIMIT}
+
+\end_inset 
+
+\SpecialChar ~
+
+\series bold 
+=\SpecialChar ~
+1000
+\series default 
+ The maximum limit (soft limit) for axis motion, in user units.
+ When this limit is exceeded, the controller aborts axis motion.
+ 
+\layout Description
+
+MIN_FERROR
+\begin_inset LatexCommand \index{MIN FERROR}
+
+\end_inset 
+
+\SpecialChar ~
+
+\series bold 
+=
+\series default 
+\SpecialChar ~
+
+\series bold 
+0.010
+\series default 
+ This is the value by which the axis is permitted to deviate from commanded
+ position at very low speeds.
+ If MIN_FERROR is smaller than FERROR, the two produce a ramp of error trip
+ points.
+ You could think of this as a graph where one dimension is speed and the
+ other is permitted following error.
+ As speed increases the amount of following error also increases toward
+ the FERROR value.
+ 
+\layout Description
+
+
+\color black
+FERROR
+\begin_inset LatexCommand \index{FERROR}
+
+\end_inset 
+
+\SpecialChar ~
+
+\series bold 
+=\SpecialChar ~
+1.0 
+\series default 
+FERROR is the maximum allowable following error, in user units.
+ If the difference between commanded and sensed position exceeds this amount,
+ the controller disables servo calculations, sets all the outputs to 0.0,
+ and disables the amplifiers.
+ If MIN_FERROR is present in the .ini file, velocity-proportional following
+ errors are used.
+ Here, the maximum allowable following error is proportional to the speed,
+ with FERROR applying to the rapid rate set by [TRAJ]MAX_VELOCITY, and proportio
+nally smaller following errors for slower speeds.
+ The maximum allowable following error will always be greater than MIN_FERROR.
+ This prevents small following errors for stationary axes from inadvertently
+ aborting motion.
+ Small following errors will always be present due to vibration, etc.
+ The following polarity values determine how inputs are interpreted and
+ how outputs are applied.
+ They can usually be set via trial-and-error since there are only two possibilit
+ies.
+ The EMCMOT utility program USRMOT can be used to set these interactively
+ and verify their results so that the proper values can be put in the INI
+ file with a minimum of trouble.
+ 
+\layout Subsubsection
+
+Homing-related items
+\begin_inset LatexCommand \label{sub:Homing-related-items}
+
+\end_inset 
+
+
+\layout Standard
+
+The next few parameters are Homing related, for a better explanation read
+ Section 
+\begin_inset LatexCommand \ref{sec:Homing}
+
+\end_inset 
+
+
+\layout Description
+
+HOME_OFFSET\SpecialChar ~
+
+\series bold 
+=\SpecialChar ~
+0.0
+\series default 
+ The axis position of the home switch or index pulse.
+\layout Description
+
+HOME_SEARCH_VEL
+\begin_inset LatexCommand \index{HOME SEARCH VEL}
+
+\end_inset 
+
+\SpecialChar ~
+
+\series bold 
+=
+\series default 
+\SpecialChar ~
+
+\series bold 
+0.0
+\series default 
+ A value of zero means assume that the current location is the home position
+ for the machine.
+ If your machine has no home switches you will want to leave this value
+ alone.
+\layout Description
+
+HOME_LATCH_VEL\SpecialChar ~
+
+\series bold 
+=
+\series default 
+\SpecialChar ~
+
+\series bold 
+0.0
+\series default 
+ This is the final velocity to be used during a home sequence.
+\layout Description
+
+HOME_USE_INDEX\SpecialChar ~
+
+\series bold 
+=
+\series default 
+\SpecialChar ~
+
+\series bold 
+NO
+\series default 
+ If the encoder used for this axis has an index pulse, and the motion card
+ has provision for this signal you may set it to yes.
+ When it is yes, it will affect the kind of home pattern used.
+\layout Description
+
+HOME_IGNORE_LIMITS\SpecialChar ~
+
+\series bold 
+=\SpecialChar ~
+NO
+\series default 
+ Some machines use a limit switch as a home switch.
+ This variable should be set to yes if you machine does this.
+\layout Subsubsection
+
+Servo-related items
+\begin_inset LatexCommand \label{sub:Servo-related-items}
+
+\end_inset 
+
+
+\layout Standard
+
+The following items are for servo-based systems and servo-like systems including
+ the univstep board from Pico Systems.
+ 
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+Refer to the the EMC2_Integrator_Manual for further information about servo
+ systems and PID control.
+\end_inset 
+
+
+\layout Description
+
+
+\color black
+P\SpecialChar ~
+
+\series bold 
+=
+\series default 
+\SpecialChar ~
+
+\series bold 
+50
+\series default 
+ 
+\series bold 
+\noun on 
+\color default
+(hal)
+\series default 
+\noun default 
+ 
+\color black
+The proportional gain for the axis servo.
+ This value multiplies the error between commanded and actual position in
+ user units, resulting in a contribution to the computed voltage for the
+ motor amplifier.
+ The units on the P gain are volts per user unit.
+ 
+\layout Description
+
+
+\color black
+I\SpecialChar ~
+
+\series bold 
+=\SpecialChar ~
+0
+\series default 
+ 
+\series bold 
+\noun on 
+\color default
+(hal)
+\series default 
+\noun default 
+ 
+\color black
+The integral gain for the axis servo.
+ The value multiplies the cumulative error between commanded and actual
+ position in user units, resulting in a contribution to the computed voltage
+ for the motor amplifier.
+ The units on the I gain are volts per user unit-seconds.
+ 
+\layout Description
+
+
+\color black
+D\SpecialChar ~
+
+\series bold 
+=\SpecialChar ~
+0
+\series default 
+ 
+\series bold 
+\noun on 
+\color default
+(hal)
+\series default 
+\noun default 
+ 
+\color black
+The derivative gain for the axis servo.
+ The value multiplies the difference between the current and previous errors,
+ resulting in a contribution to the computed voltage for the motor amplifier.
+ The units on the D gain are volts per user unit per second.
+ 
+\layout Description
+
+
+\color black
+FF0\SpecialChar ~
+
+\series bold 
+=\SpecialChar ~
+0
+\series default 
+ 
+\series bold 
+\noun on 
+\color default
+(hal)
+\series default 
+\noun default 
+ 
+\color black
+The 0-th order feedforward gain.
+ This number is multiplied by the commanded position, resulting in a contributio
+n to the computed voltage for the motor amplifier.
+ The units on the FF0 gain are volts per user unit.
+ 
+\layout Description
+
+
+\color black
+FF1\SpecialChar ~
+
+\series bold 
+=\SpecialChar ~
+0
+\series default 
+ 
+\series bold 
+\noun on 
+\color default
+(hal)
+\series default 
+\noun default 
+ 
+\color black
+The 1st order feedforward gain.
+ This number is multiplied by the change in commanded position per second,
+ resulting in a contribution to the computed voltage for the motor amplifier.
+ The units on the FF1 gain are volts per user unit per second.
+ 
+\layout Description
+
+
+\color black
+FF2\SpecialChar ~
+
+\series bold 
+=\SpecialChar ~
+0
+\series default 
+ 
+\series bold 
+\noun on 
+\color default
+(hal)
+\series default 
+\noun default 
+ 
+\color black
+The 2nd order feedforward gain.
+ This number is multiplied by the change in commanded position per second
+ per second, resulting in a contribution to the computed voltage for the
+ motor amplifier.
+ The units on the FF1 gain are volts per user unit per second per second.
+ 
+\layout Description
+
+OUTPUT_SCALE\SpecialChar ~
+
+\series bold 
+=
+\series default 
+\SpecialChar ~
+
+\series bold 
+1.000
+\layout Description
+
+OUTPUT_OFFSET\SpecialChar ~
+=\SpecialChar ~
+
+\series bold 
+0.000
+\series default 
+\color black
+ 
+\series bold 
+\noun on 
+\color default
+(hal)
+\series default 
+\noun default 
+ 
+\color black
+These two values are the scale and offset factors for the axis output to
+ the motor amplifiers.
+ The second value (offset) is subtracted from the computed output (in volts),
+ and divided by the first value (scale factor), before being written to
+ the D/A converters.
+ The units on the scale value are in true volts per DAC output volts.
+ The units on the offset value are in volts.
+ These can be used to linearize a DAC.
+ 
+\newline 
+Specifically, when writing outputs, the EMC first converts the desired output
+ in quasi-SI units to raw actuator values, e.g., volts for an amplifier DAC.
+ This scaling looks like: 
+\begin_inset Formula \[
+raw=\frac{{output-offset}}{scale}\]
+
+\end_inset 
+
+ The value for scale can be obtained analytically by doing a unit analysis,
+ i.e., units are [output SI units]/[actuator units].
+ For example, on a machine with a velocity mode amplifier such that 1 volt
+ results in 250 mm/sec velocity, 
+\begin_inset Formula \[
+amplifier[volts]=(output[\frac{mm}{sec}]-offset[\frac{mm}{sec}])/250\frac{mm}{sec\, volt}\]
+
+\end_inset 
+
+ Note that the units of the offset are in user units, e.g., mm/sec, and they
+ are pre-subtracted from the sensor readings.
+ The value for this offset is obtained by finding the value of your output
+ which yields 0.0 for the actuator output.
+ If the DAC is linearized, this offset is normally 0.0.
+ 
+\newline 
+The scale and offset can be used to linearize the DACs as well, resulting
+ in values that reflect the combined effects of amplifier gain, DAC non-linearit
+y, DAC units, etc.
+ To do this, follow this procedure: 
+\begin_deeper 
+\layout Enumerate
+
+
+\color black
+Build a calibration table for the output, driving the DACs with a desired
+ voltage and measuring the result.
+ See table\SpecialChar ~
+
+\begin_inset LatexCommand \ref{cap:Output-Voltage-Measurements}
+
+\end_inset 
+
+ for an example of voltage measurements.
+\layout Enumerate
+
+
+\color black
+Do a least-squares linear fit to get coefficients a, b such that
+\begin_inset Formula \[
+meas=a*raw+b\]
+
+\end_inset 
+
+
+\layout Enumerate
+
+
+\color black
+Note that we want raw output such that our measured result is identical
+ to the commanded output.
+ This means 
+\begin_deeper 
+\layout Enumerate
+
+
+\begin_inset Formula \[
+cmd=a*raw+b\]
+
+\end_inset 
+
+
+\layout Enumerate
+
+
+\begin_inset Formula \[
+raw=(cmd-b)/a\]
+
+\end_inset 
+
+
+\end_deeper 
+\layout Enumerate
+
+
+\color black
+As a result, the a and b coefficients from the linear fit can be used as
+ the scale and offset for the controller directly.
+ 
+\end_deeper 
+\layout Description
+
+
+\color black
+MAX_OUTPUT\SpecialChar ~
+
+\series bold 
+=\SpecialChar ~
+10 
+\noun on 
+\color default
+(hal)
+\series default 
+\noun default 
+ 
+\color black
+The maximum value for the output of the PID compensation that is written
+ to the motor amplifier, in volts.
+ The computed output value is clamped to this limit.
+ The limit is applied before scaling to raw output units.
+ 
+\layout Description
+
+
+\color black
+MIN_OUTPUT\SpecialChar ~
+=\SpecialChar ~
+-10 
+\series bold 
+\noun on 
+\color default
+(hal)
+\series default 
+\noun default 
+ 
+\color black
+The minimum value for the output of the PID compensation that is written
+ to the motor amplifier, in volts.
+ The computed output value is clamped to this limit.
+ The limit is applied before scaling to raw output units.
+ 
+\layout Standard
+
+
+\begin_inset Float table
+wide false
+collapsed false
+
+\layout Standard
+
+
+\begin_inset LatexCommand \label{cap:Output-Voltage-Measurements}
+
+\end_inset 
+
+Output Voltage Measurements
+\layout Standard
+\align center 
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="7" columns="2">
+<features>
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\family roman 
+\series medium 
+\shape up 
+\size normal 
+\emph off 
+\bar no 
+\noun off 
+\color none
+Raw
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\family roman 
+\series medium 
+\shape up 
+\size normal 
+\emph off 
+\bar no 
+\noun off 
+\color none
+Measured
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\family roman 
+\series medium 
+\shape up 
+\size normal 
+\emph off 
+\bar no 
+\noun off 
+\color none
+-10
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\family roman 
+\series medium 
+\shape up 
+\size normal 
+\emph off 
+\bar no 
+\noun off 
+\color none
+-9.93
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\family roman 
+\series medium 
+\shape up 
+\size normal 
+\emph off 
+\bar no 
+\noun off 
+\color none
+-9
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\family roman 
+\series medium 
+\shape up 
+\size normal 
+\emph off 
+\bar no 
+\noun off 
+\color none
+-8.83
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\family roman 
+\series medium 
+\shape up 
+\size normal 
+\emph off 
+\bar no 
+\noun off 
+\color none
+0
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\family roman 
+\series medium 
+\shape up 
+\size normal 
+\emph off 
+\bar no 
+\noun off 
+\color none
+-0.03
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\family roman 
+\series medium 
+\shape up 
+\size normal 
+\emph off 
+\bar no 
+\noun off 
+\color none
+1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\family roman 
+\series medium 
+\shape up 
+\size normal 
+\emph off 
+\bar no 
+\noun off 
+\color none
+0.96
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\family roman 
+\series medium 
+\shape up 
+\size normal 
+\emph off 
+\bar no 
+\noun off 
+\color none
+9
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\family roman 
+\series medium 
+\shape up 
+\size normal 
+\emph off 
+\bar no 
+\noun off 
+\color none
+9.87
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\family roman 
+\series medium 
+\shape up 
+\size normal 
+\emph off 
+\bar no 
+\noun off 
+\color none
+10
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\family roman 
+\series medium 
+\shape up 
+\size normal 
+\emph off 
+\bar no 
+\noun off 
+\color none
+10.87
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Description
+
+
+\color black
+INPUT_SCALE
+\begin_inset LatexCommand \index{INPUT SCALE}
+
+\end_inset 
+
+\SpecialChar ~
+
+\series bold 
+=
+\series default 
+\SpecialChar ~
+
+\series bold 
+40000
+\series default 
+\color default
+ 
+\series bold 
+\noun on 
+(hal)
+\series default 
+\noun default 
+ Specifies the number of pulses that corresponds to a move of one UNIT.
+ A second number, if specified, is ignored.
+\color black
+
+\newline 
+The value for scale can be obtained by doing a unit analysis, i.e., units
+ are
+\begin_inset Formula \[
+\frac{sensor\, units}{desired\, input\, SI\, units}\]
+
+\end_inset 
+
+For example, on a 2000 counts per rev encoder
+\begin_inset LatexCommand \index{encoder}
+
+\end_inset 
+
+, and 10 revs/inch gearing, and desired units of mm, we have
+\begin_inset Formula \begin{eqnarray*}
+input\_ scale & = & 2000\frac{counts}{rev}*10\frac{rev}{inch}*\frac{1\, inch}{25.4\, mm}\\
+ & = & 787.40157\frac{counts}{mm}\end{eqnarray*}
+
+\end_inset 
+
+
+\layout Subsubsection
+
+Stepper-related items
+\begin_inset LatexCommand \label{sub:Stepper-related-items}
+
+\end_inset 
+
+
+\layout Description
+
+
+\color black
+SCALE
+\begin_inset LatexCommand \index{INPUT SCALE}
+
+\end_inset 
+
+\SpecialChar ~
+=\SpecialChar ~
+40000
+\color default
+ 
+\series bold 
+\noun on 
+(hal)
+\series default 
+\noun default 
+ Specifies the number of pulses that corresponds to a move of one UNIT.
+ For stepper systems, this is the number of step pulses issued per UNIT.
+ For servo systems, this is the number of feedback pulses per UNIT.
+ A second number, if specified, is ignored.
+\color black
+
+\newline 
+The value for scale can be obtained by doing a unit analysis, i.e., units
+ are
+\begin_inset Formula \[
+\frac{step\, units}{desired\, input\, SI\, units}\]
+
+\end_inset 
+
+For example, on a 1.8 degree stepper motor with half-stepping, and 10 revs/inch
+ gearing, and desired units of mm, we have
+\begin_inset Formula \begin{eqnarray*}
+input\_ scale & = & \frac{{2\, count}}{1.8\, degree}*10\frac{rev}{inch}*\frac{1\, inch}{25.4\, mm}\\
+ & = & 157.48031\frac{counts}{mm}\end{eqnarray*}
+
+\end_inset 
+
+Older stepper configuration .ini and .hal used INPUT_SCALE for this value.
+\layout Description
+
+STEPGEN_MAXACCEL\SpecialChar ~
+
+\series bold 
+=\SpecialChar ~
+21.0
+\series default 
+ 
+\series bold 
+\noun on 
+(hal)
+\series default 
+\noun default 
+ Acceleration limit for the step generator.
+ This should be 1% to 10% larger than the axis MAX_ACCELERATION.
+ This value improves the tuning of stepgen's 
+\begin_inset Quotes eld
+\end_inset 
+
+position loop
+\begin_inset Quotes erd
+\end_inset 
+
+.
+\layout Description
+
+STEPGEN_MAXVEL\SpecialChar ~
+
+\series bold 
+=
+\series default 
+\SpecialChar ~
+
+\series bold 
+1.4
+\series default 
+ 
+\series bold 
+\noun on 
+(hal)
+\series default 
+\noun default 
+ Older configuration files have a velocity limit for the step generator
+ as well.
+
+\series bold 
+ 
+\series default 
+If specified, it should also be 1% to 10% larger than the axis MAX_VELOCITY.
+ Subsequent testing has shown that use of STEPGEN_MAXVEL does not improve
+ the tuning of stepgen's position loop.
+ 
+\layout Subsection
+
+[EMCIO] Section 
+\begin_inset LatexCommand \label{sub:[EMCIO]-Section}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{EMCIO (inifile section)}
+
+\end_inset 
+
+
+\layout Description
+
+CYCLE_TIME\SpecialChar ~
+
+\series bold 
+=
+\series default 
+\SpecialChar ~
+
+\series bold 
+0.100
+\series default 
+ The period, in seconds, at which EMCIO will run.
+ Making it 0.0 or a negative number will tell EMCIO not to sleep at all.
+ There is usually no need to change this number.
+\layout Description
+
+TOOL_TABLE\SpecialChar ~
+
+\series bold 
+=
+\series default 
+\SpecialChar ~
+
+\series bold 
+tool.tbl
+\series default 
+ The file which contains tool information, described in 
+\begin_inset LatexCommand \ref{sub:Tool-File}
+
+\end_inset 
+
+
+\layout Description
+
+TOOL_CHANGE_POSITION\SpecialChar ~
+
+\series bold 
+=\SpecialChar ~
+0\SpecialChar ~
+0\SpecialChar ~
+2
+\series default 
+ Specifies the XYZ location to move to when performing a tool change.
+\the_end

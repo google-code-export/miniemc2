@@ -1,0 +1,28 @@
+    COPYING - this software is released under the GPL, 
+              with some parts under the LGPL
+
+Please also see the files in docs/
+
+    README  - general information
+    INSTALL - information about compiling and installing the software
+    AUTHORS - information about authors
+    NEWS    - latest news
+
+
+Quickstart:
+-----------
+
+From the top level directory, switch to the source directory:
+
+  cd src
+
+In the source directory, build EMC2:
+
+  ./configure --enable-run-in-place
+  make clean
+  make
+  sudo make setuid
+
+to run the software go back to the top level directory, and issue:
+
+  scripts/emc

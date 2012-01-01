@@ -1,0 +1,67 @@
+# Execute this file in the context of your shell, such as with
+#  . @EMC2_HOME@/scripts/emc-environment
+# and your shell environment will be properly configured to run commands like
+# comp, halcmd, halrun, iosh, and python with the emc modules available.
+
+case "$0" in
+    emc-environment|*/emc-environment)
+	cat <<EOF
+This script should be loaded in the context of your shell, by executing
+	. $0
+not executed as a separate command.
+EOF
+	exit 1 ;;
+esac
+
+if ! test "xyes" = "x@RUN_IN_PLACE@"; then
+    echo "This script is only useful on run-in-place systems."
+    return
+fi
+
+case "$PATH" in
+    @EMC2_BIN_DIR@:*|*:@EMC2_BIN_DIR@:*)
+	echo "This script only needs to be run once per shell session."
+	return ;;
+esac
+
+EMC2_HOME=@EMC2_HOME@; export EMC2_HOME
+EMC2VERSION="@EMC2VERSION@"; export EMC2VERSION
+EMC2_EMCSH=@EMC2_BIN_DIR@/emcsh; export EMC2_EMCSH
+EMC2_IOSH=@EMC2_BIN_DIR@/iosh; export EMC2_IOSH
+PATH=@EMC2_BIN_DIR@:$EMC2_HOME/scripts:$EMC2_HOME/tcl:"$PATH"
+
+if [ -z "$LD_LIBRARY_PATH" ]; then
+    LD_LIBRARY_PATH=$EMC2_HOME/lib
+else
+    LD_LIBRARY_PATH=$EMC2_HOME/lib:"$LD_LIBRARY_PATH"
+fi
+
+if [ -z "$PYTHONPATH" ]; then
+    PYTHONPATH=$EMC2_HOME/lib/python
+else
+    PYTHONPATH=$EMC2_HOME/lib/python:"$PYTHONPATH"
+fi
+
+if [ -z "$MANPATH" ]; then
+    if type -path manpath > /dev/null 2>&1; then
+	MANPATH=$EMC2_HOME/docs/man:"$(manpath)"
+    else
+	MANPATH=$EMC2_HOME/docs/man:/usr/local/man:/usr/local/share/man:/usr/share/man
+    fi
+else
+    MANPATH=$EMC2_HOME/docs/man:"$MANPATH"
+fi
+
+# TODO: if these completion directives give trouble for any versions
+# of bash actively in use, protect them with checks of BASH_VERSINFO
+if [ $BASH_VERSINFO -eq 2 ]; then
+    complete -o dirnames -f -X '!*.ini' emc axis mdi
+    complete -o dirnames -f -X '!*.hal' halrun halcmd
+    complete -W 'start stop restart status' realtime
+else
+    complete -o plusdirs -f -X '!*.ini' emc axis mdi
+    complete -o plusdirs -f -X '!*.hal' halrun halcmd
+    complete -W 'start stop restart status' realtime
+fi
+
+export PYTHONPATH MANPATH

@@ -1,0 +1,189 @@
+#!/bin/sh
+
+############################################
+#INIFILE=/home/emc2/configs/tkemc.ini
+INIFILE=$1
+
+
+
+############################################
+
+if [ -z $INIFILE ] ; then
+  echo "usage: emc_start <INI-file name>"
+  exit 1
+fi
+
+if [ ! -f $INIFILE ] ; then
+  echo "Could not find ini file '$INIFILE'"
+  exit 2
+fi
+
+echo 'EMC Started at' `date`
+EMC2_HOME=/home/emc2; export EMC2_HOME
+EMC2VERSION="2.2.0"; export EMC2VERSION
+EMC2_EMCSH=/home/emc2/bin/emcsh; export EMC2_EMCSH
+EMC2_IOSH=/home/emc2/bin/iosh; export EMC2_IOSH
+PATH=/home/emc2/bin:$EMC2_HOME/scripts:$PATH
+export LD_LIBRARY_PATH=$EMC2_HOME/lib:$LD_LIBRARY_PATH
+
+EMC2_BIN_DIR=$EMC2_HOME/bin
+EMC2_RTLIB_DIR=$EMC2_HOME/rtlib
+EMC2_CONFIG_PATH=$EMC2_HOME/configs
+EMC2_NCFILES_DIR=$EMC2_HOME/nc_files
+
+INIVAR=$EMC2_BIN_DIR/inivar
+HALCMD=$EMC2_BIN_DIR/halcmd
+EMC2_EMCRSH=$EMC2_BIN_DIR/emcrsh
+
+DEBUG_FILE=/tmp/dbg
+
+killall rtapi_app io emcsvr milltask emcrsh > /dev/null 2>&1
+
+#MOD=lsmod | grep modminiemc
+#if [ -n $MOD ]; then
+#rmmod modminiemc
+#fi;
+# Check var files
+
+
+# 2.2. get param file
+# GetFromIni PARAMETER_FILE RS274NGC.
+RS274NGC_PARAMFILE=`$INIVAR -ini $INIFILE -var "PARAMETER_FILE" -sec "RS274NGC"  2>>$DEBUG_FILE`
+echo Using parameter file $RS274NGC_PARAMFILE
+# 2.3. get emcmot information
+#GetFromIni EMCMOT EMCMOT.
+#EMCMOT=$retval$MODULE_EXT # add module extension
+EMCMOT=`$INIVAR -ini $INIFILE -var "EMCMOT" -sec "EMCMOT"  2>>$DEBUG_FILE`.so
+
+# 2.4. get emcio information
+#GetFromIni EMCIO EMCIO.
+EMCIO=`$INIVAR -ini $INIFILE -var "EMCIO" -sec "EMCIO"  2>>$DEBUG_FILE`
+
+# 2.5. get emctask information
+#GetFromIni TASK TASK.
+EMCTASK=`$INIVAR -ini $INIFILE -var "TASK" -sec "TASK"  2>>$DEBUG_FILE`
+
+# 2.6. we know the emc server name, change if needed
+# emcsvr now holds/creates all the NML channels,
+# so it needs to start by default, as the first process
+EMCSERVER=emcsvr
+
+# 2.10. get NML config information
+#GetFromIni NML_FILE EMC
+NMLFILE=`$INIVAR -ini $INIFILE -var "NML_FILE" -sec "EMC"  2>>$DEBUG_FILE`
+
+#echo $RS274NGC_PARAMFILE $EMCMOT $EMCIO $EMCTASK $NMFILE
+
+# 4.3.1. Run emcserver in background, always (it owns/createas the NML buffers)
+echo "Starting EMC2 server program: $EMCSERVER"
+if [ ! -x $EMC2_BIN_DIR/$EMCSERVER ] ; then
+    echo "Can't execute server program $EMC2_BIN_DIR/$EMCSERVER"
+    exit 1
+fi
+export INI_FILE_NAME=$INIFILE
+$EMC2_BIN_DIR/$EMCSERVER -ini $INIFILE &
+sleep 1
+# 4.3.3. export the location of the HAL realtime modules so that
+# "halcmd loadrt" can find them
+export HAL_RTMOD_DIR=$EMC2_RTLIB_DIR
+
+#insmod /lib/modules/2.6.32-rc8/modminiemc.ko || echo "Module Stepgen already instaled"
+
+if [ -f /dev/spififo ]; then
+  rm /dev/spififo
+fi;
+
+if [ ! -c /dev/spififo ]; then
+  mknod /dev/spififo c 240 0
+fi;
+ 
+
+# 4.3.4. Run emcio in background
+echo "Starting EMC2 IO program: $EMCIO"
+if [ ! -x $EMC2_BIN_DIR/$EMCIO ] ; then
+    echo "Can't execute IO program $EMC2_BIN_DIR/$EMCIO"
+    exit 1
+fi
+#$HALCMD loadusr -Wn iocontrol $EMC2_BIN_DIR/$EMCIO -ini $INIFILE
+
+#$EMC2_BIN_DIR/halui -ini $INIFILE &
+
+
+
+# 4.3.6. execute HALCMD config files (if any)
+# get first config file name from ini file
+NUM=1
+CFGFILE=`$INIVAR -ini $INIFILE -var HALFILE -sec HAL -num $NUM 2> /dev/null`
+while [ -n "$CFGFILE" ] ; do
+    if ! $HALCMD -i $INIFILE -f $EMC2_CONFIG_PATH/$CFGFILE ; then
+	exit 1
+    fi
+# get next config file name from ini file
+    NUM=$(($NUM+1))
+    CFGFILE=`$INIVAR -ini $INIFILE -var HALFILE -sec HAL -num $NUM 2> /dev/null`
+done
+
+# 4.3.7. execute discrete HAL commands from ini file (if any)
+# get first command from ini file
+NUM=1
+HALCOMMAND=`$INIVAR -ini $INIFILE -var HALCMD -sec HAL -num $NUM 2> /dev/null`
+while [ -n "$HALCOMMAND" ] ; do
+    if [ -n "$HALCOMMAND" ] ; then
+	echo "Running HAL command: $HALCOMMAND" >>$PRINT_FILE
+	if ! $HALCMD $HALCOMMAND ; then
+	    echo "ini file HAL command $HALCOMMAND failed."
+	    exit 1
+	fi
+    fi
+# get next command from ini file
+    NUM=$(($NUM+1))
+    HALCOMMAND=`$INIVAR -ini $INIFILE -var HALCMD -sec HAL -num $NUM 2> /dev/null`
+done
+
+
+# 4.3.8. start the realtime stuff ticking
+$HALCMD start
+
+
+# 4.3.9. Run emctask in background
+echo "Starting EMC2 TASK program: $EMCTASK"
+if [ ! -x $EMC2_BIN_DIR/$EMCTASK ] ; then
+    echo "Can't execute TASK program $EMC2_BIN_DIR/$EMCTASK"
+    exit 1
+fi
+
+$EMC2_BIN_DIR/$EMCTASK -ini $INIFILE &
+sleep 1
+
+if [ -z `pidof $EMCTASK` ]; then 
+  echo Unable to start motion controller, try to restore configs
+  rm $EMC2_HOME/configs/sim.var $EMC2_HOME/configs/sim.var.bak
+  echo Start again
+  $EMC2_BIN_DIR/$EMCTASK -ini $INIFILE &
+  sleep 1
+  if [ -z `pidof $EMCTASK` ]; then 
+	echo Failed, stopping EMC2
+	killall rtapi_app io emcsvr
+    rmmod spififo
+	exit 1
+  else
+	echo Done
+  fi;
+fi;
+renice -20 `pidof rtapi_app`
+#echo "Starting EMC2 rsh server"
+
+#$EMC2_BIN_DIR/emcrsh -ini $INIFILE &
+exit 0
+
+
+
+
+
+
+
+
+
+
+
+
