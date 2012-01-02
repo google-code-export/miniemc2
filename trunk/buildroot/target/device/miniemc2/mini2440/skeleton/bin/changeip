@@ -1,0 +1,6 @@
+#!/bin/sh
+/usr/bin/awk -f /bin/network.awk /etc/network/interfaces device=eth0 address=$1 > /tmp/ip
+mv -f /tmp/ip /etc/network/interfaces
+ifdown eth0
+ifup eth0
+

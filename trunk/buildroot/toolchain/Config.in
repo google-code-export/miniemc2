@@ -1,0 +1,31 @@
+menu "Toolchain"
+choice
+	prompt "Toolchain type"
+	help
+	  Select whether to use the toolchain provided by buildroot
+	  or an external toolchain.
+
+	  Some vendors provide toolchains in binary form, some in
+	  source form.
+
+config BR2_TOOLCHAIN_BUILDROOT
+	bool "Buildroot toolchain"
+
+config BR2_TOOLCHAIN_EXTERNAL
+	bool "External toolchain"
+
+endchoice
+
+source "toolchain/Config.in.1"
+source "toolchain/external-toolchain/Config.in"
+
+# we want gdb config in the middle of both source and external
+# toolchains, but mconf won't let us source the same file twice,
+# so put it here instead
+source "toolchain/gdb/Config.in"
+comment "Common Toolchain Options"
+
+source "toolchain/Config.in.2"
+source "toolchain/external-toolchain/Config.in.2"
+
+endmenu

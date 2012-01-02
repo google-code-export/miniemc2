@@ -1,0 +1,7 @@
+config BR2_PACKAGE_EMC2
+	bool "EMC2 CNC controller"
+	select BR2_PACKAGE_XENOMAI
+	select BR2_PACKAGE_EMC2_KERNEL
+	select BR2_PACKAGE_EMC2_MODMINIEMC
+	help
+	  EMC2 for SAMSUNG's S3C24xx CPU

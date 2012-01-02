@@ -1,0 +1,22 @@
+config BR2_PACKAGE_BOOST
+	depends on BR2_PACKAGE_BUSYBOX
+	bool "Boost C++ library"
+	help
+	    If unsure - unselect
+if BR2_PACKAGE_BOOST
+config BR2_BOOST_TEST
+	bool "Boost test unit support"
+
+config BR2_BOOST_MATH
+	bool "Boost math functions support"
+
+config BR2_BOOST_SYSTEM
+	bool "Boost system support"
+
+config BR2_BOOST_FILESYSTEM
+	bool "Boost filesystem support"
+
+config BR2_BOOST_SERIALIZATION
+	bool "Boost serialization support"
+
+endif

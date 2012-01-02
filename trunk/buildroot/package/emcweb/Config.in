@@ -1,0 +1,8 @@
+config BR2_PACKAGE_EMC2_EMCWEB
+	bool "EMC2 CNC controller's WEB interface"
+	select BR2_PACKAGE_EMC2
+	select BR2_PACKAGE_BOOST
+	select BR2_BOOST_SYSTEM
+	select BR2_BOOST_SERIALIZATION
+	help
+	  EMC2 WEB interface for SAMSUNG's S3C24xx CPU
