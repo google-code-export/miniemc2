@@ -1,0 +1,5 @@
+config BR2_PACKAGE_EMC2_KERNEL
+	bool "KERNEL for EMC2 CNC controller"
+	select BR2_PACKAGE_EMC2_UBOOT
+	help
+	  Linux kernel for miniemc2

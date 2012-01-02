@@ -1,0 +1,4 @@
+config BR2_PACKAGE_XENOMAI
+	bool "Xenomai"
+	help
+	  Xenomai realtime support

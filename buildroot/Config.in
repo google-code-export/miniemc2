@@ -1,0 +1,296 @@
+#
+
+mainmenu "Buildroot2 Configuration"
+
+config BR2_HAVE_DOT_CONFIG
+	bool
+	default y
+
+config BR2_VERSION
+	string
+	default "2010.05"
+
+source "target/Config.in.arch"
+source "target/device/Config.in"
+
+menu "Build options"
+
+menu "Commands"
+
+config BR2_WGET
+	string "Wget command"
+	default "wget --passive-ftp -nd"
+
+config BR2_SVN_CO
+	string "Subversion (svn) command to download source tree"
+	default "svn co"
+
+config BR2_SVN_UP
+	string "Subversion (svn) command to update source tree"
+	default "svn up"
+
+config BR2_BZR_CO
+	string "Bazaar (bzr) command to download source tree"
+	default "bzr co"
+
+config BR2_BZR_UP
+	string "Bazaar (bzr) command to update source tree"
+	default "bzr up"
+
+config BR2_GIT
+	string "Git command to download source tree"
+	default "git clone"
+
+config BR2_ZCAT
+	string "zcat command"
+	default "gzip -d -c"
+	help
+	  Command to be used to extract a gzip'ed file to stdout.
+	  zcat is identical to gunzip -c except that the former may
+	  not be available on your system.
+	  Default is "gzip -d -c"
+	  Other possible values include "gunzip -c" or "zcat".
+
+config BR2_BZCAT
+	string "bzcat command"
+	default "bzcat"
+	help
+	  Command to be used to extract a bzip2'ed file to stdout.
+	  bzcat is identical to bunzip2 -c except that the former may
+	  not be available on your system.
+	  Default is "bzcat"
+	  Other possible values include "bunzip2 -c" or "bzip2 -d -c".
+
+config BR2_TAR_OPTIONS
+	string "Tar options"
+	default ""
+	help
+	  Options to pass to tar when extracting the sources.
+	  E.g. " -v --exclude='*.svn*'" to exclude all .svn internal files
+	  and to be verbose.
+
+endmenu
+
+config BR2_DL_DIR
+	string "Download dir"
+	default "$(TOPDIR)/dl"
+	help
+	  Directory to store all the source files that we need to fetch.
+	  If the Linux shell environment has defined the BUILDROOT_DL_DIR
+	  environment variable, then this overrides this configuration item.
+
+	  The default is $(TOPDIR)/dl
+
+config BR2_COPYTO
+	string "Copy result to..."
+	default ""
+	help
+	  Setting this variable will (eventually) override 
+	  any other copyto configurations in buildroot.
+
+config BR2_STAGING_DIR
+	string "Toolchain and header file location?"
+	default "$(BASE_DIR)/staging"
+	help
+	  This is the location where the toolchain will be installed.  The
+	  toolchain will not work if it is moved from this location.
+	  Therefore, if you wish to package up a uClibc toolchain, it is
+	  important that is is set to the final location where the toolchain
+	  will be used.
+
+	  Most people will leave this set to the default value of
+	  "$(BASE_DIR)/staging".
+
+source	"target/device/Config.in.mirrors"
+
+config BR2_JLEVEL
+	int "Number of jobs to run simultaneously"
+	default "2"
+	help
+	  Number of jobs to run simultaneously
+
+config BR2_DEPRECATED
+	bool "Show packages that are deprecated or obsolete"
+	help
+	  This option hides outdated/obsolete versions of packages.
+
+config BR2_ENABLE_DEBUG
+	bool "build packages with debugging symbols"
+	select BR2_PACKAGE_GDB_SERVER
+	help
+	  Build packages with debugging symbols
+	  enabled
+
+if BR2_ENABLE_DEBUG
+choice
+	prompt "gcc debug level"
+	default BR2_DEBUG_2
+	help
+	  Set the debug level for gcc
+
+config BR2_DEBUG_1
+	bool "debug level 1"
+	help
+	  Debug level 1 produces minimal information, enough
+	  for making backtraces in parts of the program that
+	  you don't plan to debug. This includes descriptions
+	  of functions and external variables, but no information
+	  about local variables and no line numbers.
+
+config BR2_DEBUG_2
+	bool "debug level 2"
+	help
+	  The default gcc debug level is 2
+
+config BR2_DEBUG_3
+	bool "debug level 3"
+	help
+	  Level 3 includes extra information, such as all the
+	  macro definitions present in the program. Some debuggers
+	  support macro expansion when you use -g3.
+endchoice
+endif
+
+choice
+	prompt "strip"
+	default BR2_STRIP_strip
+	help
+	  Select whether to strip binaries and libraries for the target
+	  or not.
+	  strip   is the normal strip command
+	  sstrip  is a strip that discards more than the normal strip
+	  none    do not strip (only for debugging!)
+
+config BR2_STRIP_strip
+	bool "strip"
+	depends on !BR2_ENABLE_DEBUG && !BR2_ELF2FLT
+	help
+	  strip   is the normal strip command
+
+config BR2_STRIP_sstrip
+	bool "sstrip"
+	select BR2_PACKAGE_SSTRIP_HOST
+	depends on !BR2_ENABLE_DEBUG && !BR2_ELF2FLT
+	help
+	  sstrip  is a strip that discards more than the normal strip
+
+config BR2_STRIP_none
+	bool "none"
+	help
+	  none    do not strip (only for debugging!)
+endchoice
+
+choice
+	prompt "gcc optimization level"
+	default BR2_OPTIMIZE_S
+	help
+	  Set the optimization level for gcc
+
+config BR2_OPTIMIZE_0
+	bool "optimization level 0"
+	depends on !BR2_PACKAGE_LINUX
+	help
+	  Do not optimize. This is the default.
+
+config BR2_OPTIMIZE_1
+	bool "optimization level 1"
+	depends on !BR2_PACKAGE_LINUX
+	help
+	  Optimize. Optimizing compilation takes somewhat more time,
+	  and a lot more memory for a large function. With -O, the
+	  compiler tries to reduce code size and execution time,
+	  without performing any optimizations that take a great deal
+	  of compilation time. -O turns on the following optimization
+	  flags: -fdefer-pop -fdelayed-branch -fguess-branch-probability
+	  -fcprop-registers -floop-optimize -fif-conversion
+	  -fif-conversion2 -ftree-ccp -ftree-dce -ftree-dominator-opts
+	  -ftree-dse -ftree-ter -ftree-lrs -ftree-sra -ftree-copyrename
+	  -ftree-fre -ftree-ch -funit-at-a-time -fmerge-constants
+	  -O also turns on -fomit-frame-pointer on machines where doing
+	  so does not interfere with debugging.
+
+config BR2_OPTIMIZE_2
+	bool "optimization level 2"
+	help
+	  Optimize even more. GCC performs nearly all supported optimizations
+	  that do not involve a space-speed tradeoff. The compiler does not
+	  perform loop unrolling or function inlining when you specify -O2.
+	  As compared to -O, this option increases both compilation time and
+	  the performance of the generated code. -O2 turns on all optimization
+	  flags specified by -O. It also turns on the following optimization
+	  flags: -fthread-jumps -fcrossjumping -foptimize-sibling-calls
+	  -fcse-follow-jumps -fcse-skip-blocks -fgcse  -fgcse-lm
+	  -fexpensive-optimizations -fstrength-reduce -frerun-cse-after-loop
+	  -frerun-loop-opt -fcaller-saves -fpeephole2 -fschedule-insns
+	  -fschedule-insns2 -fsched-interblock -fsched-spec -fregmove
+	  -fstrict-aliasing -fdelete-null-pointer-checks -freorder-blocks
+	  -freorder-functions -falign-functions -falign-jumps -falign-loops
+	  -falign-labels -ftree-vrp -ftree-pre
+	  Please note the warning under -fgcse about invoking -O2 on programs
+	  that use computed gotos.
+
+config BR2_OPTIMIZE_3
+	bool "optimization level 3"
+	help
+	  Optimize yet more. -O3 turns on all optimizations specified by -O2
+	  and also turns on the -finline-functions, -funswitch-loops and
+	  -fgcse-after-reload options.
+
+config BR2_OPTIMIZE_S
+	bool "optimize for size"
+	help
+	  Optimize for size. -Os enables all -O2 optimizations that do not
+	  typically increase code size. It also performs further optimizations
+	  designed to reduce code size. -Os disables the following optimization
+	  flags: -falign-functions -falign-jumps -falign-loops -falign-labels
+	  -freorder-blocks -freorder-blocks-and-partition -fprefetch-loop-arrays
+	  -ftree-vect-loop-version
+
+endchoice
+
+config BR2_PREFER_STATIC_LIB
+	bool "prefer static libraries"
+	help
+	  Where possible, build and use static libraries for the target.
+	  This potentially increases your code size and should only be
+	  used if you know what you do.
+	  The default is to build dynamic libraries and use those on
+	  the target filesystem.
+
+	  WARNING: This is highly experimental at the moment.
+
+config BR2_HAVE_DOCUMENTATION
+	bool "documentation on the target"
+	help
+	  Install the documentation, including manual pages and info
+	  pages, on the target.
+	  If you say n here, your target will not contain any
+	  documentation.
+
+config BR2_HAVE_DEVFILES
+	bool "development files in target filesystem"
+	help
+	  Install headers and static libraries in the
+	  target filesystem
+
+menu "Advanced"
+
+config BR2_CONFIG_CACHE
+	bool "Use a central configure cache file"
+	default y
+	help
+	  This determines if a central config cache is used by
+	  packages, reducing the configure time for packages as each
+	  one caches its findings.
+
+endmenu
+
+endmenu
+
+source "toolchain/Config.in"
+
+source "package/Config.in"
+
+source "fs/Config.in"
+
+source "target/Config.in"

@@ -1,0 +1,15 @@
+menuconfig BR2_TARGET_MINIEMC2
+       bool "miniemc2 CNC controller"
+
+if BR2_TARGET_MINIEMC2
+
+config BR2_TARGET_MINIEMC2_MINI2440
+    bool "Support for miniEMC2 project on mini2440 board"
+    help 
+	This option enables support for Company project Foobar
+
+config BR2_TARGET_MINIEMC2_MINI2416
+    bool "Support for miniEMC2 project on mini2416 board"
+    help 
+	This option enables support for Company project Foobar
+endif

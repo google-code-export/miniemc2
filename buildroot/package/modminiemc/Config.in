@@ -1,0 +1,5 @@
+config BR2_PACKAGE_EMC2_MODMINIEMC
+	bool "EMC2 CNC controller kernel module"
+	depends on BR2_PACKAGE_EMC2_KERNEL
+	help
+	  EMC2 for SAMSUNG's S3C24xx CPU: kernel helper module

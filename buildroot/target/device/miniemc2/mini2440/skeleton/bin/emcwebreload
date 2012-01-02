@@ -1,0 +1,4 @@
+#!/bin/sh
+kill `pidof emcweb` 
+sleep 2
+/bin/emcweb &
