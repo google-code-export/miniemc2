@@ -23,7 +23,7 @@ $(EMC2_DIR)/.configure:
 	touch $@
 	
 $(EMC2_DIR)/.built: $(EMC2_DIR)/.configure
-	(cd $(EMC2_DIR)/src; make || echo Done )
+	(cd $(EMC2_DIR)/src; export PATH=$(PATH):$(BR2_TOOLCHAIN_EXTERNAL_PATH)/bin/; make || echo Done )
 
 
 $(EMC2_DIR)/.copied: $(EMC2_DIR)/.built
