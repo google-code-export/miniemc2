@@ -54,24 +54,19 @@ static void init_fiq_data( void )
     fiq_ipc_static.scan_pin_num = -1;
 }
 
-// open function - called when the "file" /dev/skeleton is opened in userspace
 static int miniemc_open (struct inode *inode, struct file *file) {
-
-
-	printk("skeleton_open\n");
+    printk("modminiemc open\n");
     init_fiq_data();
-	return 0;
+    return 0;
 }
 
-// close function - called when the "file" /dev/skeleton is closed in userspace
 static int miniemc_release (struct inode *inode, struct file *file) {
-	printk("%s\n", __func__ );
-	return 0;
+    printk("%s\n", __func__ );
+    return 0;
 }
 
 // ioctl - I/O control
 struct fiq_ipc_static fst;
-#define GPIO_VA(x) ( (int)S3C24XX_VA_GPIO-(int)S3C2410_PA_GPIO + (x) )
 
 #ifndef CONFIG_MACH_MINI2416
 static int miniemc_ioctl(struct inode *inode, struct file *file,
@@ -85,7 +80,7 @@ static long miniemc_ioctl(struct file *file, unsigned int cmd, unsigned long arg
 		case AXIS_SET_IOCTL:/* for configuring data */
 			if (copy_from_user(&fst, (struct fiq_ipc_static *)arg, sizeof(struct fiq_ipc_static)))
                 return -EFAULT;
-            {
+    	    {
                 fiq_ipc_static.rb_size = fst.rb_size;
                 for( i = 0; i < MAX_PWM; i++ )
                 {
@@ -97,8 +92,8 @@ static long miniemc_ioctl(struct file *file, unsigned int cmd, unsigned long arg
                 {
                     if( fst.axis[i].configured )
                     {
-                        fiq_ipc_static.axis[i].step_pin_addr = fst.axis[i].step_pin_addr; //GPIO_VA(fst.axis[i].step_pin_addr);
-                        fiq_ipc_static.axis[i].dir_pin_addr = fst.axis[i].dir_pin_addr;//GPIO_VA(fst.axis[i].dir_pin_addr);
+                        fiq_ipc_static.axis[i].step_pin_addr = fst.axis[i].step_pin_addr;
+                        fiq_ipc_static.axis[i].dir_pin_addr = fst.axis[i].dir_pin_addr;
                         fiq_ipc_static.axis[i].step_pin_mask = fst.axis[i].step_pin_mask;
                         fiq_ipc_static.axis[i].dir_pin_mask = fst.axis[i].dir_pin_mask;
                         fiq_ipc_static.axis[i].dir_pin_pol = fst.axis[i].dir_pin_pol;
@@ -106,32 +101,29 @@ static long miniemc_ioctl(struct file *file, unsigned int cmd, unsigned long arg
                     }
                 }
                 fiq_ipc_static.scan_pin_num = fst.scan_pin_num;
-
             }
 	break;
 
         case SCAN_PIN_SETUP_IOCTL:
-                printk("fiq_static addr=%p\n", &fiq_ipc_static );
-                printk("fifo size=%d\n", fiq_ipc_static.rb_size );
-                for(i = 0; i < MAX_AXIS; i++)
-                {
-                    printk("axis[%d].configured=%x\n", i, fiq_ipc_static.axis[i].configured );
-                    printk("axis[%d].step_pin_addr=%x\n", i, fiq_ipc_static.axis[i].step_pin_addr );
-                    printk("axis[%d].step_pin_mask=%x\n", i, fiq_ipc_static.axis[i].step_pin_mask );
-                    printk("axis[%d].dir_pin_addr=%x\n", i, fiq_ipc_static.axis[i].dir_pin_addr );
-                    printk("axis[%d].dir_pin_mask=%x\n", i, fiq_ipc_static.axis[i].dir_pin_mask );
-                    printk("axis[%d].dir_pin_pol=%x\n", i, fiq_ipc_static.axis[i].dir_pin_pol );
-                }
-
-                for(i = 0; i < MAX_PWM; i++)
-                {
-                     printk("pwm[%d].pin_addr=%x\n", i, fiq_ipc_static.pwm_pin_addr[i] );
-                     printk("pwm[%d].pin_mask=%x\n", i, fiq_ipc_static.pwm_pin_mask[i] );
-                }
-                printk("scan_pin_num=%d\n", fiq_ipc_static.scan_pin_num );
-                break;
-		default:
-			retval = -EINVAL;
+	    printk("fiq_static addr=%p\n", &fiq_ipc_static );
+            printk("fifo size=%d\n", fiq_ipc_static.rb_size );
+            for(i = 0; i < MAX_AXIS; i++)
+            {
+                printk("axis[%d].configured=%x\n", i, fiq_ipc_static.axis[i].configured );
+                printk("axis[%d].step_pin_addr=%x\n", i, fiq_ipc_static.axis[i].step_pin_addr );
+                printk("axis[%d].step_pin_mask=%x\n", i, fiq_ipc_static.axis[i].step_pin_mask );
+                printk("axis[%d].dir_pin_addr=%x\n", i, fiq_ipc_static.axis[i].dir_pin_addr );
+                printk("axis[%d].dir_pin_mask=%x\n", i, fiq_ipc_static.axis[i].dir_pin_mask );
+                printk("axis[%d].dir_pin_pol=%x\n", i, fiq_ipc_static.axis[i].dir_pin_pol );
+            }
+            for(i = 0; i < MAX_PWM; i++)
+            {
+                 printk("pwm[%d].pin_addr=%x\n", i, fiq_ipc_static.pwm_pin_addr[i] );
+                 printk("pwm[%d].pin_mask=%x\n", i, fiq_ipc_static.pwm_pin_mask[i] );
+            }
+            break;
+	default:
+		retval = -EINVAL;
 	}
 	return retval;
 }
@@ -166,49 +158,36 @@ struct file_operations skeleton_fops = {
 };
 
 // initialize module
-
-
 static int __init miniemc_init_module (void) {
-	int i;
+    int i, msk, ack_mask = 1L << 12;
 
-    int msk, ack_mask = 1L << 12;
-
-	printk("initializing module\n");
-	i = register_chrdev (MINIEMC_MAJOR, MINIEMC_NAME, &skeleton_fops);
-	if (i != 0) return - EIO;
-
+    printk("initializing module\n");
+    i = register_chrdev (MINIEMC_MAJOR, MINIEMC_NAME, &skeleton_fops);
+    if (i != 0) 
+	return - EIO;
     pfiq_ipc_shared = dma_alloc_writecombine(NULL, sizeof(struct fiq_ipc_shared)+ 2 * PAGE_SIZE, &fiq_bus_addr, GFP_KERNEL);
-	if (!pfiq_ipc_shared)
-	{
-		printk("kmalloc failed\n");
-		return - ENOMEM;
-	}
-    init_fiq_data();
-    //Test pin
-     if(gpio_request(TEST_PIN, "TEST PIN") != 0)
+    if (!pfiq_ipc_shared)
     {
-        gpio_free(TEST_PIN);
-        printk("Unable request GPIO(%d) as a test pin\n", TEST_PIN);
-        return -4;
+	printk("kmalloc failed\n");
+	return - ENOMEM;
     }
-    gpio_direction_output( TEST_PIN, 0 );
+    init_fiq_data();
     // Starting timer FIQ's
     msk = __raw_readl(S3C2410_INTMSK);
     __raw_writel(msk & ~ack_mask, S3C2410_INTMSK );
 
-	return 0;
+    return 0;
 }
 
 // close and cleanup module
 static void __exit miniemc_cleanup_module (void) {
     int msk;
-	printk("%s: cleaning up\n", __func__ );
-	gpio_free( TEST_PIN );
+    printk("%s: cleaning up\n", __func__ );
     // Stopping timer FIQ's
     msk = __raw_readl(S3C2410_INTMSK);
     __raw_writel(msk | (1L << 12), S3C2410_INTMSK );
-	dma_free_writecombine(NULL, sizeof(struct fiq_ipc_shared)+ 2 * PAGE_SIZE, pfiq_ipc_shared, fiq_bus_addr);
-	unregister_chrdev (MINIEMC_MAJOR, MINIEMC_NAME);
+    dma_free_writecombine(NULL, sizeof(struct fiq_ipc_shared)+ 2 * PAGE_SIZE, pfiq_ipc_shared, fiq_bus_addr);
+    unregister_chrdev (MINIEMC_MAJOR, MINIEMC_NAME);
 }
 
 module_init(miniemc_init_module);
