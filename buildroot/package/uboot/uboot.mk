@@ -6,11 +6,17 @@
 EMC2_UBOOT_SVN:=file:///home/ksu/repository/miniemc/uboot/u-boot-1.3.2
 EMC2_UBOOT_DIR:=$(TOPDIR)/../uboot
 
-
-$(EMC2_UBOOT_DIR)/.built:
+$(EMC2_UBOOT_DIR)/.configured:
 	( cd $(EMC2_UBOOT_DIR); \
 	export CROSS_COMPILE=$(BR2_TOOLCHAIN_EXTERNAL_PATH)/bin/$(BR2_TOOLCHAIN_EXTERNAL_PREFIX)- ; \
 	make mini2440_config; \
+	)
+	touch $@
+
+
+$(EMC2_UBOOT_DIR)/.built: $(EMC2_UBOOT_DIR)/.configured
+	( cd $(EMC2_UBOOT_DIR); \
+	export CROSS_COMPILE=$(BR2_TOOLCHAIN_EXTERNAL_PATH)/bin/$(BR2_TOOLCHAIN_EXTERNAL_PREFIX)- ; \
 	make; \
 	cp -f ./u-boot.bin $(BINARIES_DIR)/ \
 	)
