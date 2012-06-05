@@ -216,6 +216,12 @@ int hal_init(char *name)
     if(hal_shmem_base == 0) {
         hal_shmem_base = (char *) mem;
         hal_data = (hal_data_t *) mem;
+    } else if( hal_shmem_base != mem )
+    {
+	rtapi_print_msg(RTAPI_MSG_ERR, "Detected VM shifting, tring to change\n");
+        hal_shmem_base = (char *) mem;
+        hal_data = (hal_data_t *) mem;
+	
     }
     /* perform a global init if needed */
     retval = init_hal_data();

@@ -3,25 +3,33 @@
 # EMC2
 #
 #############################################################
-EMC2_UBOOT_SVN:=file:///home/ksu/repository/miniemc/uboot/u-boot-1.3.2
-EMC2_UBOOT_DIR:=$(TOPDIR)/../uboot
+ifeq ($(BR2_TARGET_MINIEMC2_MINI2440),y)
+EMC2_UBOOT_DIR:=$(TOPDIR)/../bootloaders/mini2440
+BOOT_CONFIG:=mini2440_config
+else
+EMC2_UBOOT_DIR:=$(TOPDIR)/../bootloaders/mini2416
+BOOT_CONFIG:=smdk2416_config
+endif
 
 $(EMC2_UBOOT_DIR)/.configured:
 	( cd $(EMC2_UBOOT_DIR); \
 	export CROSS_COMPILE=$(BR2_TOOLCHAIN_EXTERNAL_PATH)/bin/$(BR2_TOOLCHAIN_EXTERNAL_PREFIX)- ; \
-	make mini2440_config; \
+	make $(BOOT_CONFIG) \
 	)
 	touch $@
 
 
-$(EMC2_UBOOT_DIR)/.built: $(EMC2_UBOOT_DIR)/.configured
+$(BINARIES_DIR)/u-boot.bin: $(EMC2_UBOOT_DIR)/.configured
 	( cd $(EMC2_UBOOT_DIR); \
 	export CROSS_COMPILE=$(BR2_TOOLCHAIN_EXTERNAL_PATH)/bin/$(BR2_TOOLCHAIN_EXTERNAL_PREFIX)- ; \
 	make; \
 	cp -f ./u-boot.bin $(BINARIES_DIR)/ \
 	)
+ifeq ($(BR2_TARGET_MINIEMC2_MINI2416),y)
+	cd $(EMC2_UBOOT_DIR) && ./mkmovi && cp -f ./u-boot-movi.bin $(BINARIES_DIR)/
+endif
 
-uboot: busybox $(EMC2_UBOOT_DIR)/.built
+uboot: busybox $(BINARIES_DIR)/u-boot.bin
 
 
 uboot-clean:

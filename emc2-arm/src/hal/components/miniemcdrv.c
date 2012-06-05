@@ -117,13 +117,10 @@ typedef struct
 	const char name[16];
 } miniemcGPIO;
 
-
 #ifdef CONFIG_MARCH_MINI2416
 
 #define GPIO_MAP_FADDR 0x56000010
 #define GPIO_MAP_SIZE	0xC0
-
-
 const miniemcGPIO GPIOS[] =
 {
     //Outputs

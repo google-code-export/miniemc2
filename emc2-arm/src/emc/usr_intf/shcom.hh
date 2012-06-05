@@ -140,5 +140,6 @@ extern int sendSetTeleopEnable(int enable);
 extern int sendClearProbeTrippedFlag();
 extern int sendProbe(double x, double y, double z);
 extern int iniLoad(const char *filename);
-
+extern int nmlUpdate();
+extern void initMain();
 #endif				/* ifndef SHCOM_HH */

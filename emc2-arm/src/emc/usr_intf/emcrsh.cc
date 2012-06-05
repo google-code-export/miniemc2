@@ -2695,7 +2695,7 @@ int sockMain()
     return 0;
 }
 
-static void initMain()
+static void initMain_rsh()
 {
     emcWaitType = EMC_WAIT_RECEIVED;
     emcCommandSerialNumber = 0;
@@ -2719,7 +2719,7 @@ static void initMain()
 int main(int argc, char *argv[])
 {
 
-    initMain();
+    initMain_rsh();
     // process command line args
     if (emcGetArgs(argc, argv) != 0) {
 	rcs_print_error("error in argument list\n");

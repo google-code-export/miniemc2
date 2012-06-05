@@ -1,0 +1,16 @@
+#!/bin/sh
+echo $1 : $2 : $3> /dev/console
+
+if [ ! -d /media ]; then
+  mkdir -p /media
+fi;
+sleep 1
+
+case $2 in
+  add) mkdir -p /media/$3 && mount $1 /media/$3 ;;
+  remove) ( umount -f /media/$3 || umount -l /media/$3 ) && rmdir /media/$3 ;;
+  mmc | usb) mkdir -p /media/$2 && mount $1 /media/$2 ;;
+  *) echo Unknow event $2 > /dev/console
+esac
+
+

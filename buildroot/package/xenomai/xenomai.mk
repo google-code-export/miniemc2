@@ -5,7 +5,7 @@
 #############################################################
 XENOMAI_VERSION:=2.5.6
 XENOMAI_SOURCE:=xenomai-$(XENOMAI_VERSION).tar.bz2
-XENOMAI_SITE:=http://download.gna.org/xenomai/stable
+2XENOMAI_SITE:=http://download.gna.org/xenomai/stable
 XENOMAI_DIR:=$(BUILD_DIR)/xenomai-$(XENOMAI_VERSION)
 XENOMAI_INSTALL_DIR:=$(XENOMAI_DIR)/install
 #XENOMAI_CONF_OPT = --host=arm-linux-gnueabi --enable-arm-eabi --enable-arm-mach=s3c2410 --disable-arm-tsc
