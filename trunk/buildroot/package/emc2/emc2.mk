@@ -6,7 +6,14 @@
 EMC2_SVN:=file:///home/ksu/repository/miniemc/emc-arm-xen
 EMC2_DIR:=$(TOPDIR)/../emc2-arm
 EMC2_SRC:=emc-arm.tar.gz
-KERNEL_DIR:=$(TOPDIR)/../kernel/linux-2.6.35.9
+ifeq ($(BR2_TARGET_MINIEMC2_MINI2416),y)
+EMC2_ARCHOPTS="-I$(EMC2_KERNEL_DIR) -DCONFIG_MARCH_MINI2416"
+else
+EMC2_ARCHOPTS=-I$(EMC2_KERNEL_DIR)
+endif
+
+ARCHOPTS=-I$(EMC2_KERNEL_DIR) \
+
 
 
 $(EMC2_DIR)/.configure: 
@@ -14,7 +21,7 @@ $(EMC2_DIR)/.configure:
 	$(TARGET_CONFIGURE_OPTS) \
 	$(TARGET_CONFIGURE_ARGS) \
 	PTH_CONFIG=$(BUILD_DIR)/xenomai-2.5.6/install/bin/xeno-config \
-	ARCHOPTS=-I$(KERNEL_DIR) \
+	ARCHOPTS=$(EMC2_ARCHOPTS) \
 	EMC2_HOME=/home/emc2 \
 	./configure \
 		--without-x  --enable-simulator --enable-run-in-place \
@@ -35,6 +42,13 @@ $(EMC2_DIR)/.copied: $(EMC2_DIR)/.built
 	cp -f $(EMC2_DIR)/bin/* $(TARGET_DIR)/home/emc2/bin/
 	cp -f $(EMC2_DIR)/lib/*.so* $(TARGET_DIR)/home/emc2/lib/
 	cp -f $(EMC2_DIR)/configs/miniemc2/* $(TARGET_DIR)/home/emc2/configs
+ifeq ($(BR2_TARGET_MINIEMC2_MINI2416),y)
+	rm -f $(TARGET_DIR)/home/emc2/configs/miniemc.hal.2440
+	mv -f $(TARGET_DIR)/home/emc2/configs/miniemc.hal.2416 $(TARGET_DIR)/home/emc2/configs/miniemc.hal
+else
+	rm -f $(TARGET_DIR)/home/emc2/configs/miniemc.hal.2416
+	mv -f $(TARGET_DIR)/home/emc2/configs/miniemc.hal.2440 $(TARGET_DIR)/home/emc2/configs/miniemc.hal
+endif
 	cp -rf $(EMC2_DIR)/lib/*  $(STAGING_DIR)/usr/lib/
 	touch $@
 

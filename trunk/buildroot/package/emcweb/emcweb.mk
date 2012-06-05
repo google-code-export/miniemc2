@@ -3,31 +3,22 @@
 # EMCWEB
 #
 #############################################################
-EMC2_EMCWEB_SRC_DIR:=/home/ksu/projects/miniemc/workspace/projects/emcweb
-EMC2_EMCWEB_DIR:=$(BUILD_DIR)/emcweb
-EMC2_EMCWEB_DIST:=emcweb.tar.gz
+EMC2_EMCWEB_SRC_DIR:=$(TOPDIR)/../emcweb
 
-$(DL_DIR)/$(EMC2_EMCWEB_DIST):
-	cd $(EMC2_EMCWEB_SRC_DIR); ./mkdist; mv -f ./emcweb.tar.gz $(DL_DIR)
-
-$(EMC2_EMCWEB_DIR)/.unpacked : $(DL_DIR)/$(EMC2_EMCWEB_DIST)
-	mkdir -p $(EMC2_EMCWEB_DIR)
-	$(ZCAT) $(DL_DIR)/emcweb.tar.gz | tar -C $(EMC2_EMCWEB_DIR) $(TAR_OPTIONS) -
-	touch $@
 	
-$(EMC2_EMCWEB_DIR)/.copied: $(EMC2_EMCWEB_DIR)/.unpacked
-	cp -rf $(EMC2_EMCWEB_DIR)/www $(TARGET_DIR)/home/
-	cp -f $(EMC2_EMCWEB_DIR)/emcweb $(TARGET_DIR)/bin/
-	(cd $(TARGET_DIR)/home/www/html; ln -fs ../../../tmp ./data )
-	touch $@
+$(TARGET_DIR)/bin/emcweb: 
+	$(TARGET_CONFIGURE_OPTS) make -C $(EMC2_EMCWEB_SRC_DIR)
+	mkdir -p $(TARGET_DIR)/home/www/html/res $(TARGET_DIR)/home/www/html/js $(TARGET_DIR)/home/www/html/css
+	cp -r $(EMC2_EMCWEB_SRC_DIR)/res $(TARGET_DIR)/home/www/html/
+	cp -r $(EMC2_EMCWEB_SRC_DIR)/css $(TARGET_DIR)/home/www/html/
+	cp -r $(EMC2_EMCWEB_SRC_DIR)/js $(TARGET_DIR)/home/www/html/
+	cp -r $(EMC2_EMCWEB_SRC_DIR)/html/* $(TARGET_DIR)/home/www/html/
+	cp -f $(EMC2_EMCWEB_SRC_DIR)/emcweb $(TARGET_DIR)/bin/
 	
-emcweb: boost emc2 $(EMC2_EMCWEB_DIR)/.copied
+emcweb: boost emc2 $(TARGET_DIR)/bin/emcweb
 
 emcweb-clean:
-	
-
-emcweb-dirclean:
-	rm -rf $EMC2_EMCWEB_DIR
+	make -C $(EMC2_EMCWEB_SRC_DIR) clean
 
 ifeq ($(BR2_PACKAGE_EMC2_EMCWEB),y)
 TARGETS+=emcweb

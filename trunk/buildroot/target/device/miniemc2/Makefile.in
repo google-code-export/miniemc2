@@ -1,3 +1,6 @@
 ifeq ($(BR2_TARGET_MINIEMC2_MINI2440),y)
 include target/device/miniemc2/mini2440/Makefile.in
 endif
+ifeq ($(BR2_TARGET_MINIEMC2_MINI2416),y)
+include target/device/miniemc2/mini2416/Makefile.in
+endif

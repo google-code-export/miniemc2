@@ -4,7 +4,7 @@
 #
 #############################################################
 EMC2_MODMINIEMC_DIR:=$(TOPDIR)/../modules/modminiemc
-EMC2_KERNEL_DIR:=$(TOPDIR)/../kernel/linux-2.6.35.9
+#EMC2_KERNEL_DIR:=$(TOPDIR)/../kernel/linux-2.6.35.9
 
 $(EMC2_MODMINIEMC_DIR)/.built:
 	(cd $(EMC2_MODMINIEMC_DIR); \

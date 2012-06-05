@@ -21,6 +21,7 @@ null::sysinit:/bin/mount -t devpts devpts /dev/pts
 null::sysinit:/bin/echo /sbin/mdev > /proc/sys/kernel/hotplug
 null::sysinit:/sbin/mdev -s
 null::sysinit:/bin/hostname -F /etc/hostname
+null::sysinit:/bin/ln -sf /tmp /home/www/html/data
 ::sysinit:/bin/emcwebstart
 
 # now run any rc scripts
