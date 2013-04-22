@@ -1,0 +1,4 @@
+#!/bin/sh
+/home/emc2/bin/halcmd setp miniemcdrv.1.pwm-in $1
+exit 0
+

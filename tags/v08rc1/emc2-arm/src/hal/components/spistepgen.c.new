@@ -1,0 +1,274 @@
+/********************************************************************
+* Description:  counter.c
+*               This file, 'counter.c', is a HAL component that
+*               provides software-based counting of pulse streams
+*               with an optional reset input.
+*
+* Author: Chris Radek <chris@timeguy.com>
+* License: GPL Version 2
+*
+* Copyright (c) 2006 All rights reserved.
+*/
+#ifndef RTAPI
+#error This is a realtime component only!
+#endif
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/ioctl.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <string.h>
+#include <linux/types.h>
+#include <linux/spi/spidev.h>
+
+#include "../../../../kernel/2.6.32-rc8/arch/arm/mach-s3c2410/include/mach/fiq_ipc_mini2440.h"
+
+#include "rtapi.h"              /* RTAPI realtime OS API */
+#include "rtapi_app.h"          /* RTAPI realtime module decls */
+#include "rtapi_errno.h"        /* EINVAL etc */
+#include "hal.h"                /* HAL public API decls */
+
+
+
+/* module information */
+MODULE_AUTHOR("Sergey Kaydalov");
+MODULE_DESCRIPTION("FIQ stepgen driver");
+MODULE_LICENSE("GPL");
+static int num_axis = 3;        /* number of channels - default = 1 */
+static int fifo_deep = 128;
+static int spi_hz = 8000000;
+RTAPI_MP_INT(num_axis, "number of axis");
+RTAPI_MP_INT(fifo_deep, "deepest of spi fifo");
+RTAPI_MP_INT(spi_hz, "spi speed");
+
+#define GPIO_NUM 161
+/***********************************************************************
+*                STRUCTURES AND GLOBAL VARIABLES                       *
+************************************************************************/
+
+/* this structure contains the runtime data for a single counter */
+
+#define MAX_CHAN 12
+
+
+typedef struct
+{
+    hal_float_t *cmd_pos[MAX_CHAN]; // input pins, commanded axis position
+    hal_float_t *fb_pos[MAX_CHAN]; // output pins, feedback axis position
+    hal_bit_t	*traj_wait; // output pin to trajectory planer sync pin
+    int fd;
+    hal_s32_t lastValue;
+} gpio_t;
+
+/* pointer to array of counter_t structs in shmem, 1 per counter */
+static gpio_t *pgpio;
+
+static int cmd_pos_fifo[RINGBUFF_SIZE][MAX_AXIS]; // FIFO for commanded position
+static int cmd_pos_prev[MAX_AXIS];
+/* other globals */
+static int comp_id;		/* component ID */
+
+
+stepgen_status status;
+
+/***********************************************************************
+*                  LOCAL FUNCTION DECLARATIONS                         *
+************************************************************************/
+
+static void update(void *arg, long period);
+
+/***********************************************************************
+*                       INIT AND EXIT CODE                             *
+************************************************************************/
+
+
+int rtapi_app_main(void)
+{
+    int retval, i;
+    char buf[128];
+    axis_priv_config cfg;
+
+    /* test for number of channels */
+    if ((num_axis <= 0) || (num_axis > MAX_CHAN)) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "COUNTER: ERROR: invalid num_chan: %d\n", num_axis);
+	return -EINVAL;
+    }
+    /* have good config info, connect to the HAL */
+    comp_id = hal_init("spistepgen");
+    if (comp_id < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "SPISTEPGEN: ERROR: hal_init() failed\n");
+	return -EINVAL;
+    }
+
+    pgpio = hal_malloc(sizeof(gpio_t));
+    memset(pgpio, 0, sizeof(gpio_t));
+/* export pins */
+	// Trajectory wait output
+	rtapi_snprintf(buf, HAL_NAME_LEN, "spistepgen.traj_wait");
+	retval = hal_pin_bit_new(buf, HAL_OUT, &(pgpio->traj_wait), comp_id);
+	if (retval != 0)
+	{
+	  return retval;
+	}
+
+    for(i=0; i < num_axis; i++)
+    {
+  	  // commanded position pin
+	  rtapi_snprintf(buf, HAL_NAME_LEN, "spistepgen.%d.cmd_pos", i);
+  	  retval = hal_pin_float_new(buf, HAL_IN, &(pgpio->cmd_pos[i]), comp_id);
+	  if (retval != 0)
+	  {
+		return retval;
+	  }
+	  //feedback position pin
+	  rtapi_snprintf(buf, HAL_NAME_LEN, "spistepgen.%d.fb_pos", i);
+  	  retval = hal_pin_float_new(buf, HAL_OUT, &(pgpio->fb_pos[i]), comp_id);
+	  if (retval != 0)
+	  {
+		return retval;
+	  }
+
+    }
+
+/* export functions */
+    retval = hal_export_funct("update-spistepgen", update,
+	pgpio, 0, 0, comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "COUNTER: ERROR: count funct export failed\n");
+	hal_exit(comp_id);
+	return -EIO;
+    }
+    pgpio->fd = open("/dev/spififo", O_RDWR | O_SYNC);
+
+    if(pgpio->fd < 0)
+    {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "GPIO_DRIVER: ERROR: unble to create access to stepgen module\n");
+        hal_exit(comp_id);
+        return -EIO;
+    }
+    memset(&cmd_pos_prev, 0, sizeof(cmd_pos_prev));
+    memset(&cmd_pos_fifo, 0, sizeof(cmd_pos_fifo));
+    *(pgpio->traj_wait) = 1;
+    cfg.axis_index = 0;
+    cfg.step_pin = 160;
+    cfg.step_pol = 1;
+    cfg.dir_pin = 161;
+    cfg.dir_pol = 0;
+    cfg.slave_axis = -1;
+    ioctl(pgpio->fd, AXIS_SET_IOCTL, &cfg);
+    cfg.axis_index = 1;
+    cfg.step_pin = 162;
+    cfg.step_pol = 1;
+    cfg.dir_pin = 163;
+    ioctl(pgpio->fd, AXIS_SET_IOCTL, &cfg);
+    cfg.axis_index = 2;
+    cfg.step_pin = 164;
+    cfg.step_pol = 1;
+    cfg.dir_pin = 165;
+    ioctl(pgpio->fd, AXIS_SET_IOCTL, &cfg);
+    cfg.axis_index = 3;
+    cfg.step_pin = 193;
+    cfg.step_pol = 1;
+    cfg.dir_pin = 194;
+    ioctl(pgpio->fd, AXIS_SET_IOCTL, &cfg);
+    cfg.axis_index = 4;
+    cfg.step_pin = 195;
+    cfg.step_pol = 1;
+    cfg.dir_pin = 196;
+    ioctl(pgpio->fd, AXIS_SET_IOCTL, &cfg);
+    cfg.axis_index = 5;
+    cfg.step_pin = 197;
+    cfg.step_pol = 1;
+    cfg.dir_pin = 198;
+    ioctl(pgpio->fd, AXIS_SET_IOCTL, &cfg);
+    hal_ready(comp_id);
+    return 0;
+}
+
+void rtapi_app_exit(void)
+{
+    hal_exit(comp_id);
+}
+
+/***********************************************************************
+*            REALTIME COUNTER COUNTING AND UPDATE FUNCTIONS            *
+************************************************************************/
+
+static void update(void *arg, long period)
+{
+    gpio_t *pgpio = (gpio_t*)arg;
+    static int PutPtr = 0, GetPtr = 0, buffSize = 0;
+    transfer_buffer		tbuf;
+    int		   i, n , rc;
+    fprintf(stderr, "%s enter, traj_wait=%d\n", __func__, *(pgpio->traj_wait));
+
+    if(*(pgpio->traj_wait) == 1)
+    {
+        for(i=0; i < num_axis; i++)
+        {
+          *(pgpio->fb_pos[i]) = *(pgpio->cmd_pos[i]);
+          cmd_pos_fifo[PutPtr++][i] =  (int) (*(pgpio->cmd_pos[i])*10000.0f) - cmd_pos_prev[i];
+        }
+        memcpy(cmd_pos_prev, cmd_pos_fifo[PutPtr], sizeof(cmd_pos_prev));
+        buffSize++;
+    }
+
+   /* if(buffSize >= RINGBUFF_SIZE)
+	{
+	    int oldGetPtr = GetPtr;
+        for(n = 0; n < buffSize; n++)
+        {
+            for(i = 0; i < num_axis; i++)
+            {
+                if(cmd_pos_fifo[GetPtr] >= 0)
+                {
+                    tbuf.buffer[n][i].adder = cmd_pos_fifo[GetPtr][i];
+                    tbuf.buffer[n][i].direction = 0;
+                } else
+                {
+                    tbuf.buffer[n][i].adder = -1 * cmd_pos_fifo[GetPtr][i];
+                    tbuf.buffer[n][i].direction = 1;
+                }
+            }
+            if(GetPtr++ >= RINGBUFF_SIZE)
+                GetPtr = 0;
+        }
+        tbuf.buffSize = buffSize;
+        fprintf(stderr, "Try PUSH_BUFF_IOCTL size %d\n", buffSize);
+        rc = ioctl(pgpio->fd, PUSH_BUFF_IOCTL, &tbuf);
+        if(rc)
+        {
+            fprintf(stderr, "Error in PUSH_BUFF_IOCTL: %d\n", rc);
+        } else
+        {
+             memcpy(&status, &tbuf, sizeof(stepgen_status));
+             if(status.underrun)
+             {
+                 fprintf(stderr, "Stepgen: underrun detected\n");
+             }
+             fprintf(stderr, "PUSH_BUFF_IOCTL pushed %d\n", status.num_reads);
+             buffSize -= status.num_reads;
+             GetPtr = oldGetPtr + status.num_reads;
+             if(GetPtr >= RINGBUFF_SIZE)
+                GetPtr -= RINGBUFF_SIZE;
+        }
+    }*/
+
+    fprintf(stderr, "%s exit, bufsize=%d\n", __func__, buffSize);
+
+   /* if(buffSize >= RINGBUFF_SIZE)
+  		*(pgpio->traj_wait) = 0;
+    else
+        *(pgpio->traj_wait) = 1;*/
+}
+
+/***********************************************************************
+*                   LOCAL FUNCTION DEFINITIONS                         *
+************************************************************************/
+

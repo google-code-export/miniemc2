@@ -1,0 +1,2 @@
+BOARD_PATH=target/device/miniemc2/mini2416
+TARGET_SKELETON=$(BOARD_PATH)/skeleton

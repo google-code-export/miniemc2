@@ -1,0 +1,24 @@
+INCLUDES += rtapi
+
+../include/%.h: ./rtapi/%.h
+	cp $^ $@
+../include/%.hh: ./rtapi/%.hh
+	cp $^ $@
+
+ifeq ($(BUILD_SYS),sim)
+
+RTAPI_APP_SRCS := \
+	rtapi/sim_rtapi_app.cc \
+	rtapi/sim_rtapi.c
+USERSRCS += $(RTAPI_APP_SRCS)
+#PTH_CONFIG := /home/ksu/projects/miniemc/tools/xenomai/bin/xeno-config
+PTH_CFLAGS := $(shell $(PTH_CONFIG) --skin=native --cflags )
+#PTH_LINK := $(shell $(PTH_CONFIG) --skin=native --ldflags --libs 2>/dev/null)
+PTH_LINK := $(shell $(PTH_CONFIG) --skin=native --ldflags )
+
+$(call TOOBJSDEPS, $(RTAPI_APP_SRCS)): EXTRAFLAGS += $(OPT) $(PTH_CFLAGS) -DSIM  
+../bin/rtapi_app: $(call TOOBJS, $(RTAPI_APP_SRCS))
+	$(ECHO) Linking $(notdir $@)
+	$(CXX) -rdynamic $(LDFLAGS) -o $@ $^ -ldl $(PTH_LINK)
+TARGETS += ../bin/rtapi_app
+endif

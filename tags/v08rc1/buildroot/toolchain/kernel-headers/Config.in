@@ -1,0 +1,69 @@
+# Choose the kernel headers to use for kernel-headers target. This is
+# ignored if you are building your own kernel or using the system kernel.
+#
+
+comment "Kernel Header Options"
+
+choice
+	prompt "Kernel Headers"
+	default BR2_KERNEL_HEADERS_2_6_33
+
+	help
+	  Select the version of kernel header files you wish to use.
+	  You must select the correct set of header files to match
+	  the kernel you intend to use on your target system.
+
+	  For the snapshot, you have to provide the
+	  linux-2.6.tar.bz2 tarball in your download dir.
+
+	config BR2_KERNEL_HEADERS_2_6_27
+		depends on BR2_DEPRECATED
+		bool "Linux 2.6.27.x kernel headers"
+
+	config BR2_KERNEL_HEADERS_2_6_28
+		bool "Linux 2.6.28.x kernel headers"
+		depends on BR2_DEPRECATED
+
+	config BR2_KERNEL_HEADERS_2_6_29
+		bool "Linux 2.6.29.x kernel headers"
+		depends on BR2_DEPRECATED
+
+	config BR2_KERNEL_HEADERS_2_6_30
+		bool "Linux 2.6.30.x kernel headers"
+		depends on BR2_DEPRECATED
+
+	config BR2_KERNEL_HEADERS_2_6_31
+		bool "Linux 2.6.31.x kernel headers"
+		depends on BR2_DEPRECATED
+
+	config BR2_KERNEL_HEADERS_2_6_32
+		bool "Linux 2.6.32.x kernel headers"
+
+	config BR2_KERNEL_HEADERS_2_6_33
+		bool "Linux 2.6.33.x kernel headers"
+
+	config BR2_KERNEL_HEADERS_VERSION
+		bool "Linux 2.6 (manually specified version)"
+
+	config BR2_KERNEL_HEADERS_SNAP
+		bool "Local Linux snapshot (linux-2.6.tar.bz2)"
+endchoice
+
+config BR2_DEFAULT_KERNEL_VERSION
+	string "linux version"
+	depends on BR2_KERNEL_HEADERS_VERSION
+	help
+	  Specify the version you want to use.
+	  E.g.: 2.6.31.2
+
+config BR2_DEFAULT_KERNEL_HEADERS
+	string
+	default "2.6.27.47"	if BR2_KERNEL_HEADERS_2_6_27
+	default "2.6.28.10"	if BR2_KERNEL_HEADERS_2_6_28
+	default "2.6.29.6"	if BR2_KERNEL_HEADERS_2_6_29
+	default "2.6.30.10"	if BR2_KERNEL_HEADERS_2_6_30
+	default "2.6.31.13"	if BR2_KERNEL_HEADERS_2_6_31
+	default "2.6.32.14"	if BR2_KERNEL_HEADERS_2_6_32
+	default "2.6.33.5"	if BR2_KERNEL_HEADERS_2_6_33
+	default "2.6"		if BR2_KERNEL_HEADERS_SNAP
+	default $BR2_DEFAULT_KERNEL_VERSION if BR2_KERNEL_HEADERS_VERSION

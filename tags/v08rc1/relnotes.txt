@@ -1,0 +1,6 @@
+4 Jun 2012. Version 0.8-rc2. Changes:
+1) Added source code of emcweb - miniEMC2's WEB-server
+2) Fixed small bugs in Buildroot
+3) Added support for second HW board - mini2416 ( google for som2416 )
+If you don't need mini2416 target you may not checkout kernel/linux-2.6.37.6 and 
+bootloaders/mini2416 folders.

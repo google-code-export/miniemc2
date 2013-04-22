@@ -1,0 +1,238 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\begin_preamble
+\usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
+\end_preamble
+\language english
+\inputencoding default
+\fontscheme bookman
+\graphics default
+\float_placement !htbp
+\paperfontsize default
+\spacing single 
+\papersize letterpaper
+\paperpackage a4
+\use_geometry 1
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\leftmargin 1in
+\topmargin 1in
+\rightmargin 0.8in
+\bottommargin 0.8in
+\secnumdepth 1
+\tocdepth 5
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Chapter
+
+Tools and Utilities
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:Halcmd}
+
+\end_inset 
+
+Halcmd
+\layout Standard
+
+Halcmd is a command line tool for manipulating the HAL.
+ There is a rather complete man page for halcmd, which will be installed
+ if you have installed EMC2 from either source or a package.
+ If you have compiled EMC2 for 
+\begin_inset Quotes eld
+\end_inset 
+
+run-in-place
+\begin_inset Quotes erd
+\end_inset 
+
+, the man page is not installed, but it is accessible.
+ From the main EMC2 directory, do:
+\layout LyX-Code
+
+$ 
+\series bold 
+man -M docs/man halcmd
+\layout Standard
+
+Chapter 
+\begin_inset LatexCommand \ref{cha:HAL-Tutorial}
+
+\end_inset 
+
+ has a number of examples of halcmd usage, and is a good tutorial for halcmd.
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:Halmeter}
+
+\end_inset 
+
+Halmeter
+\layout Standard
+
+Halmeter is a 
+\begin_inset Quotes eld
+\end_inset 
+
+voltmeter
+\begin_inset Quotes erd
+\end_inset 
+
+ for the HAL.
+ It lets you look at a pin, signal, or parameter, and displays the current
+ value of that item.
+ It is pretty simple to use.
+ Start it by typing 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\family typewriter 
+halmeter
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+ in a X windows shell.
+ Halmeter is a GUI application.
+ It will pop up a small window, with two buttons labeled 
+\begin_inset Quotes eld
+\end_inset 
+
+Select
+\begin_inset Quotes erd
+\end_inset 
+
+ and 
+\begin_inset Quotes eld
+\end_inset 
+
+Exit
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ Exit is easy - it shuts down the program.
+ Select pops up a larger window, with three tabs.
+ One tab lists all the pins currently defined in the HAL.
+ The next lists all the signals, and the last tab lists all the parameters.
+ Click on a tab, then click on a pin/signal/parameter.
+ Then click on 
+\begin_inset Quotes eld
+\end_inset 
+
+OK
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ The lists will disappear, and the small window will display the name and
+ value of the selected item.
+ The display is updated approximately 10 times per second.
+ If you click 
+\begin_inset Quotes eld
+\end_inset 
+
+Accept
+\begin_inset Quotes erd
+\end_inset 
+
+ instead of 
+\begin_inset Quotes eld
+\end_inset 
+
+OK
+\begin_inset Quotes erd
+\end_inset 
+
+, the small window will display the name and value of the selected item,
+ but the large window will remain on the screen.
+ This is convenient if you want to look at a number of different items quickly.
+ 
+\layout Standard
+
+You can have many halmeters running at the same time, if you want to monitor
+ several items.
+ If you want to launch a halmeter without tying up a shell window, type
+ 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\family typewriter 
+halmeter &
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+ to run it in the background.
+ You can also make halmeter start displaying a specific item immediately,
+ by adding 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\family typewriter 
+pin|sig|par[am] <name>
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+ to the command line.
+ It will display the pin, signal, or parameter <name> as soon as it starts.
+ (If there is no such item, it will simply start normally.) And finally,
+ if you specify an item to display, you can add 
+\begin_inset Quotes eld
+\end_inset 
+
+-s
+\begin_inset Quotes erd
+\end_inset 
+
+ before the pin|sig|param to tell halmeter to use a small window.
+ The item name will be displayed in the title bar instead of under the value,
+ and there will be no buttons.
+ Usefull when you want a lot of meters in a small amount of screen space.
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:Halscope}
+
+\end_inset 
+
+Halscope
+\layout Standard
+
+Halscope is an 
+\begin_inset Quotes eld
+\end_inset 
+
+oscilloscope
+\begin_inset Quotes erd
+\end_inset 
+
+ for the HAL.
+ It lets you capture the value of pins, signals, and parameters as a function
+ of time.
+ Complete operating instructions should be located here eventually.
+ For now, refer to section 
+\begin_inset LatexCommand \ref{sec:Tutorial - Halscope}
+
+\end_inset 
+
+ in the tutorial chapter, which explains the basics.
+\the_end

@@ -1,0 +1,4 @@
+config BR2_PACKAGE_EMC2_UBOOT
+	bool "UBOOT for EMC2 CNC controller"
+	help
+	  Bootloader for miniemc2

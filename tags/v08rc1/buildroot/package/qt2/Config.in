@@ -1,0 +1,5 @@
+config BR2_PACKAGE_QT2
+	bool "QT-2.3.10 library"
+	depends on BR2_INSTALL_LIBSTDCPP
+	help
+	    If unsure - unselect

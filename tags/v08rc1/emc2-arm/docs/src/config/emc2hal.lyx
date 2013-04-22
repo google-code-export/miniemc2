@@ -1,0 +1,574 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\language english
+\inputencoding auto
+\fontscheme default
+\graphics default
+\paperfontsize default
+\spacing single 
+\papersize Default
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Chapter
+
+EMC2 and HAL
+\layout Standard
+
+See also the manual pages 
+\series bold 
+motion(9)
+\series default 
+ and 
+\series bold 
+iocontrol(1)
+\series default 
+.
+\layout Section
+
+motion (realtime)
+\layout Standard
+
+These pins, parameters, and functions are created by the realtime 
+\family typewriter 
+motmod
+\family default 
+ module.
+\layout Subsection
+
+Pins
+\begin_inset LatexCommand \index{motion (hal pins)}
+
+\end_inset 
+
+
+\layout Description
+
+motion.adaptive-feed\SpecialChar ~
+IN\SpecialChar ~
+float When adaptive feed is enabled with 
+\family typewriter 
+M52\SpecialChar ~
+P1
+\family default 
+ (See section 
+\begin_inset LatexCommand \ref{sec:M52:-Adaptive-Feed-Control}
+
+\end_inset 
+
+), the commanded velocity is multiplied by this value.
+ This effect is multiplicative with the NML-level feed override value and
+ 
+\series bold 
+motion.feed-hold
+\series default 
+.
+\layout Description
+
+motion.digital-out-NN\SpecialChar ~
+OUT\SpecialChar ~
+bit These pins are controlled by the 
+\family typewriter 
+M62
+\family default 
+ through 
+\family typewriter 
+M65
+\family default 
+ words.
+\layout Description
+
+motion.enable\SpecialChar ~
+IN\SpecialChar ~
+bit If this bit is driven FALSE, motion stops, the machine
+ is placed in the 
+\begin_inset Quotes eld
+\end_inset 
+
+machine off
+\begin_inset Quotes erd
+\end_inset 
+
+ state, and a message is displayed for the operator.
+ For normal motion, drive this bit TRUE.
+\layout Description
+
+motion.feed-hold\SpecialChar ~
+IN\SpecialChar ~
+bit When Feed Stop Control is enabled with 
+\family typewriter 
+M53\SpecialChar ~
+P1
+\family default 
+ (See section 
+\begin_inset LatexCommand \ref{sec:M53:-Feed-Stop-Control}
+
+\end_inset 
+
+), and this bit is TRUE, the feed rate is set to 0.
+\layout Description
+
+motion.motion-inpos\SpecialChar ~
+OUT\SpecialChar ~
+bit TRUE if the machine is in position.
+\layout Description
+
+motion.probe-input\SpecialChar ~
+IN\SpecialChar ~
+bit 
+\family typewriter 
+G38.2
+\family default 
+ uses the value on this pin to determine when the probe has made contact.
+ TRUE for probe contact closed (touching), FALSE for probe contact open.
+\layout Description
+
+motion.spindle-brake\SpecialChar ~
+OUT\SpecialChar ~
+bit TRUE when the spindle brake should be applied
+\layout Description
+
+motion.spindle-forward\SpecialChar ~
+OUT\SpecialChar ~
+bit TRUE when the spindle should rotate forward
+\layout Description
+
+motion.spindle-reverse\SpecialChar ~
+OUT\SpecialChar ~
+bit TRUE when the spindle should rotate backward
+\layout Description
+
+motion.spindle-on\SpecialChar ~
+OUT\SpecialChar ~
+bit TRUE when spindle should rotate
+\layout Description
+
+motion.spindle-speed-out\SpecialChar ~
+OUT\SpecialChar ~
+float Desired spindle speed in rotations per minute
+\layout Description
+
+motion.spindle-index-enable\SpecialChar ~
+I/O\SpecialChar ~
+bit For correct operation of spindle synchronized
+ moves, this signal must be hooked to the index-enable pin of the spindle
+ encoder.
+\layout Description
+
+motion.spindle-revs\SpecialChar ~
+IN\SpecialChar ~
+float For correct operation of spindle synchronized
+ moves, this signal must be hooked to the position pin of the spindle encoder.
+\layout Subsection
+
+Parameters
+\layout Standard
+
+Many of these parameters serve as debugging aids, and are subject to change
+ or removal at any time.
+\layout Description
+
+motion.coord-error TRUE when motion has encountered an error, such as exceeding
+ a soft limit
+\layout Description
+
+motion.coord-mode TRUE when motion is in 
+\begin_inset Quotes eld
+\end_inset 
+
+coordinated mode
+\begin_inset Quotes erd
+\end_inset 
+
+, as opposed to 
+\begin_inset Quotes eld
+\end_inset 
+
+teleop mode
+\begin_inset Quotes erd
+\end_inset 
+
+
+\layout Description
+
+motion.in-position Same as the pin 
+\emph on 
+motion.motion-inpos
+\layout Description
+
+motion.motion-enabled TRUE when motion is enabled
+\layout Description
+
+motion.servo.last-period The number of CPU cycles between invocations of the
+ servo thread.
+ Typically, this number divided by the CPU speed gives the time in seconds,
+ and can be used to determine whether the realtime motion controller is
+ meeting its timing constraints
+\layout Description
+
+motion.servo.overruns By noting large differences between successive values
+ of 
+\emph on 
+motion.servo.last-period
+\emph default 
+, the motion controller can determine that there has probably been a failure
+ to meet its timing constraints.
+ Each time such a failure is detected, this value is incremented.
+\layout Description
+
+motion.debug-bit-0
+\layout Description
+
+motion.debug-bit-1
+\layout Description
+
+motion.debug-float-0
+\layout Description
+
+motion.debug-float-1 These values are used for debugging purposes.
+ 
+\layout Subsection
+
+Functions
+\layout Standard
+
+Generally, these functions are both added to the servo-thread in the order
+ shown.
+\layout Description
+
+motion-command-handler Processes motion commands coming from user space
+\layout Description
+
+motion-controller Runs the emc motion controller
+\layout Section
+
+axis.N (realtime)
+\layout Standard
+
+These pins and parameters are created by the realtime 
+\family typewriter 
+motmod
+\family default 
+ module.
+ These are actually joint values, but the pins and parameters are still
+ called 
+\begin_inset Quotes eld
+\end_inset 
+
+axis.N
+\begin_inset Quotes erd
+\end_inset 
+
+.
+\begin_inset Foot
+collapsed false
+
+\layout Standard
+
+In 
+\begin_inset Quotes eld
+\end_inset 
+
+trivial kinematics
+\begin_inset Quotes erd
+\end_inset 
+
+ machines, there is a one-to-one correspondence between joints and axes.
+\end_inset 
+
+ They are read and updated by the 
+\emph on 
+motion-controller
+\emph default 
+ function.
+\layout Subsection
+
+Pins
+\begin_inset LatexCommand \index{axis (hal pins)}
+
+\end_inset 
+
+
+\layout Description
+
+axis.N.amp-enable-out\SpecialChar ~
+OUT\SpecialChar ~
+bit TRUE if the amplifier for this joint should be
+ enabled
+\layout Description
+
+axis.N.amp-fault-in\SpecialChar ~
+IN\SpecialChar ~
+bit Should be driven TRUE if an external fault is detected
+ with the amplifier for this joint
+\layout Description
+
+axis.N.home-sw-in\SpecialChar ~
+IN\SpecialChar ~
+bit Should be driven TRUE if the home switch for this joint
+ is closed
+\layout Description
+
+axis.N.homing\SpecialChar ~
+OUT\SpecialChar ~
+bit TRUE if the joint is currently homing
+\layout Description
+
+axis.N.pos-lim-sw-in\SpecialChar ~
+IN\SpecialChar ~
+bit Should be driven TRUE if the positive limit switch
+ for this joint is closed
+\layout Description
+
+axis.N.neg-lim-sw-in\SpecialChar ~
+IN\SpecialChar ~
+bit Should be driven TRUE if the negative limit switch
+ for this joint is closed
+\layout Description
+
+axis.N.index-enable\SpecialChar ~
+IO\SpecialChar ~
+BIT Should be attached to the index-enable pin of the
+ joint's encoder to enable homing to index pulse
+\layout Description
+
+axis.N.jog-counts\SpecialChar ~
+IN\SpecialChar ~
+s32 Connect to the 
+\begin_inset Quotes eld
+\end_inset 
+
+counts
+\begin_inset Quotes erd
+\end_inset 
+
+ pin of an external encoder to use a physical jog wheel.
+\layout Description
+
+axis.N.jog-enable\SpecialChar ~
+IN\SpecialChar ~
+bit When TRUE (and in manual mode), any change in 
+\begin_inset Quotes eld
+\end_inset 
+
+jog-counts
+\begin_inset Quotes erd
+\end_inset 
+
+ will result in motion.
+ When false, 
+\begin_inset Quotes eld
+\end_inset 
+
+jog-counts
+\begin_inset Quotes erd
+\end_inset 
+
+ is ignored.
+\layout Description
+
+axis.N.jog-scale\SpecialChar ~
+IN\SpecialChar ~
+float Sets the distance moved for each count on 
+\begin_inset Quotes eld
+\end_inset 
+
+jog-counts
+\begin_inset Quotes erd
+\end_inset 
+
+, in machine units.
+\layout Description
+
+axis.N.jog-vel-mode\SpecialChar ~
+IN\SpecialChar ~
+bit When FALSE (the default), the jogwheel operates in
+ position mode.
+ The axis will move exactly jog-scale units for each count, regardless of
+ how long that might take.
+ When TRUE, the wheel operates in velocity mode - motion stops when the
+ wheel stops, even if that means the commanded motion is not completed.
+\layout Description
+
+axis.N.motor-pos-cmd\SpecialChar ~
+OUT\SpecialChar ~
+float The commanded position for this joint.
+\layout Description
+
+axis.N.motor-pos-fb\SpecialChar ~
+IN\SpecialChar ~
+float The actual position for this joint.
+\layout Description
+
+axis.N.joint-pos-cmd The joint (as opposed to motor) commanded position.
+ There may be an offset between the joint and motor positions--for example,
+ the homing process sets this offset.
+\layout Description
+
+axis.N.joint-pos-fb The joint (as opposed to motor) feedback position.
+\layout Subsection
+
+Parameters
+\layout Standard
+
+Many of these parameters serve as debugging aids, and are subject to change
+ or removal at any time.
+\layout Description
+
+axis.N.active TRUE when this joint is active
+\layout Description
+
+axis.N.backlash-corr Backlash or screw compensation raw value
+\layout Description
+
+axis.N.backlash-filt Backlash or screw compensation filtered value (respecting
+ motion limits)
+\layout Description
+
+axis.N.backlash-vel Backlash or screw compensation velocity 
+\layout Description
+
+axis.N.coarse-pos-cmd
+\layout Description
+
+axis.N.error TRUE when this joint has encountered an error, such as a limit
+ switch closing
+\layout Description
+
+axis.N.f-error The actual following error
+\layout Description
+
+axis.N.f-error-lim The following error limit
+\layout Description
+
+axis.N.f-errored TRUE when this joint has exceeded the following error limit
+\layout Description
+
+axis.N.free-pos-cmd The 
+\begin_inset Quotes eld
+\end_inset 
+
+free planner
+\begin_inset Quotes erd
+\end_inset 
+
+ commanded position for this joint.
+\layout Description
+
+axis.N.free-tp-enable TRUE when the 
+\begin_inset Quotes eld
+\end_inset 
+
+free planner
+\begin_inset Quotes erd
+\end_inset 
+
+ is enabled for this joint
+\layout Description
+
+axis.N.free-vel-lim The velocity limit for the free planner
+\layout Description
+
+axis.N.home-state Reflects the step of homing currently taking place
+\layout Description
+
+axis.N.homed TRUE if the joint has been homed
+\layout Description
+
+axis.N.in-position TRUE if the joint is using the 
+\begin_inset Quotes eld
+\end_inset 
+
+free planner
+\begin_inset Quotes erd
+\end_inset 
+
+ and has come to a stop
+\layout Description
+
+axis.N.joint-vel-cmd The joint's commanded velocity
+\layout Description
+
+axis.N.neg-hard-limit The negative hard limit for the joint
+\layout Description
+
+axis.N.neg-soft-limit The negative soft limit for the joint
+\layout Description
+
+axis.N.pos-hard-limit The positive hard limit for the joint
+\layout Description
+
+axis.N.pos-soft-limit The positive soft limit for the joint
+\layout Section
+
+iocontrol (userspace)
+\layout Standard
+
+These pins are created by the userspace IO controller, usually called 
+\family typewriter 
+io
+\family default 
+.
+\layout Subsection
+
+Pins
+\begin_inset LatexCommand \index{iocontrol (HAL pins)}
+
+\end_inset 
+
+
+\layout Description
+
+iocontrol.0.coolant-flood TRUE when flood coolant is requested
+\layout Description
+
+iocontrol.0.coolant-mist TRUE when mist coolant is requested
+\layout Description
+
+iocontrol.0.emc-enable-in Should be driven FALSE when an external estop condition
+ exists
+\layout Description
+
+iocontrol.0.lube
+\layout Description
+
+iocontrol.0.lube_level Should be driven TRUE when 
+\layout Description
+
+iocontrol.0.tool-change TRUE when a tool change is requested
+\layout Description
+
+iocontrol.0.tool-changed Should be driven TRUE when a tool change is completed
+\layout Description
+
+iocontrol.0.tool-prep-number The number of the next tool, from the RS274NGC
+ T-word
+\layout Description
+
+iocontrol.0.tool-prepare TRUE when a tool prepare is requested
+\layout Description
+
+iocontrol.0.tool-prepared Should be driven TRUE when a tool prepare is completed
+ 
+\layout Description
+
+iocontrol.0.user-enable-out FALSE when an internal estop condition exists
+\layout Description
+
+iocontrol.0.user-request-enable TRUE when the user has requested that estop
+ be cleared
+\the_end

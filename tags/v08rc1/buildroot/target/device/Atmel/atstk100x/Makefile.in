@@ -1,0 +1,4 @@
+ifeq ($(strip $(BR2_TARGET_AVR32_ATSTK1002)),y)
+UBOOT_BOARD_NAME:=atstk1002
+TARGET_SKELETON=$(BOARD_PATH)/target_skeleton
+endif

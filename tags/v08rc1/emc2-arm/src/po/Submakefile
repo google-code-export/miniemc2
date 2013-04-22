@@ -1,0 +1,73 @@
+%.mo: %.po
+	msgfmt -o $@ $<
+
+po/%.msg: po/%.po
+	msgfmt --tcl -l $* -d po $<
+
+../share/locale/%/LC_MESSAGES/axis.mo: po/%_axis.mo
+	$(ECHO) copying $* message catalog
+	@mkdir -p $(dir $@)
+	@cp $< $@
+
+../share/locale/%/LC_MESSAGES/rs274_err.mo: po/%_rs274_err.mo
+	$(ECHO) copying $* message catalog
+	@mkdir -p $(dir $@)
+	@cp $< $@
+
+MO_FILES := $(patsubst po/%_rs274_err.po, %/LC_MESSAGES/rs274_err.mo, \
+	$(wildcard po/*_rs274_err.po))
+
+$(DESTDIR)$(localedir)/%/LC_MESSAGES/rs274_err.mo: ../share/locale/%/LC_MESSAGES/rs274_err.mo
+	$(DIR) $(DESTDIR)$(localedir)/$*/LC_MESSAGES
+	$(FILE) $< $@
+
+$(DESTDIR)$(localedir)/%/LC_MESSAGES/axis.mo: ../share/locale/%/LC_MESSAGES/axis.mo
+	$(DIR) $(DESTDIR)$(localedir)/$*/LC_MESSAGES
+	$(FILE) $< $@
+
+TARGETS += $(patsubst po/%_rs274_err.po, \
+	../share/locale/%/LC_MESSAGES/rs274_err.mo, \
+	$(wildcard po/*_rs274_err.po))
+
+TCLSRCS := \
+	../tcl/bin/emccalib.tcl \
+	../tcl/bin/emcdebug.tcl \
+	../tcl/bin/emctesting.tcl \
+	../tcl/bin/emctuning.tcl \
+	../tcl/bin/genedit.tcl \
+	../tcl/bin/halconfig.tcl \
+	../tcl/bin/halshow.tcl \
+	../tcl/bin/pickconfig.tcl \
+	../tcl/bin/tkbackplot.tcl \
+	../tcl/bin/tkio.tcl \
+	../tcl/mini.tcl \
+	../tcl/show_errors.tcl \
+	../tcl/tkemc.tcl \
+	../tcl/scripts/Set_Coordinates.tcl \
+	../tcl/scripts/balloon.tcl \
+	../tcl/scripts/emchelp.tcl
+
+ifeq "$(XGETTEXT_TCL_WORKS)" "yes"
+po/tcl.pot: $(TCLSRCS)
+	$(XGETTEXT) -o $@ $^ && touch $@
+TARGETS += po/tcl.pot
+endif
+
+po/rs274_err.pot: emc/task/emctaskmain.cc emc/rs274ngc/rs274ngc_errors.cc emc/rs274ngc/interp_arc.cc
+	$(XGETTEXT) -k_ -o $@ $^ && touch $@
+TARGETS += po/rs274_err.pot
+
+po/axis.pot: $(PYI18NSRCS)
+	$(XGETTEXT) -k_ -o $@ $^
+
+ifeq ($(BUILD_PYTHON),yes)
+MO_FILES += $(patsubst po/%_axis.po, %/LC_MESSAGES/axis.mo, \
+	$(wildcard po/*_axis.po))
+TARGETS += $(patsubst po/%_axis.po, \
+	../share/locale/%/LC_MESSAGES/axis.mo, \
+	$(wildcard po/*_axis.po))
+endif
+
+.PHONY: install-locale
+install-locale: $(addprefix $(DESTDIR)$(localedir)/, $(MO_FILES))
+install-kernel-indep: install-locale
