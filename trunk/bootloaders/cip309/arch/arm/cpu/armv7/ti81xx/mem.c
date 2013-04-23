@@ -48,7 +48,17 @@ static const u32 gpmc_m_nand[GPMC_MAX_REG] = {
 #define GPMC_CS 0
 
 #endif
+#if defined (CONFIG_SMC911X)
 
+static const u32 gpmc_net[GPMC_MAX_REG]={
+	NET_GPMC_CONFIG1,
+	NET_GPMC_CONFIG2,
+	NET_GPMC_CONFIG3,
+	NET_GPMC_CONFIG4,
+	NET_GPMC_CONFIG5,
+	NET_GPMC_CONFIG6,0
+};
+#endif
 
 void enable_gpmc_cs_config(const u32 *gpmc_config, struct gpmc_cs *cs, u32 base,
 			u32 size)
@@ -93,7 +103,11 @@ void gpmc_init(void)
 	 */
 	writel(0, &gpmc_cfg->cs[0].config7);
 	sdelay(1000);
-
+#if defined(CONFIG_SMC911X)
+	enable_gpmc_cs_config(gpmc_net,
+				&gpmc_cfg->cs[3],
+				CONFIG_SMC911X_BASE, GPMC_SIZE_64M);
+#endif
 #if defined(CONFIG_CMD_NAND)	/* CS 0 */
 	gpmc_config = gpmc_m_nand;
 

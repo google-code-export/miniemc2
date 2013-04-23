@@ -53,14 +53,32 @@ void smc911x_reg_write(struct eth_device *dev, u32 offset, u32 val)
 #elif defined (CONFIG_SMC911X_16_BIT)
 static inline u32 smc911x_reg_read(struct eth_device *dev, u32 offset)
 {
+#ifdef CONFIG_BOARD_CIP309REVA
+	volatile u16 val2, val1;
+    volatile u16* ptr = (u16*)(dev->iobase + offset/2);
+	*(volatile u32*)(GPIO1_BASE + 0x190) |= (1L<<16);
+    val1 = *ptr;
+    *(volatile u32*)(GPIO1_BASE + 0x194) |= (1L<<16);
+    val2 = *ptr;
+	return ( val1  | ((u32)val2 << 16));
+#else
 	volatile u16 *addr_16 = (u16 *)(dev->iobase + offset);
 	return ((*addr_16 & 0x0000ffff) | (*(addr_16 + 1) << 16));
+#endif
 }
 static inline void smc911x_reg_write(struct eth_device *dev,
 					u32 offset, u32 val)
 {
+#ifdef CONFIG_BOARD_CIP309REVA
+	volatile u16* ptr = (u16*)(dev->iobase + offset/2);
+	*(volatile u32*)(GPIO1_BASE + 0x190) |= (1L<<16);
+	*ptr =  (u16)val;
+	*(volatile u32*)(GPIO1_BASE + 0x194) |= (1L<<16);
+	*ptr =  (u16)(val >> 16);
+#else
 	*(volatile u16 *)(dev->iobase + offset) = (u16)val;
 	*(volatile u16 *)(dev->iobase + offset + 2) = (u16)(val >> 16);
+#endif
 }
 #else
 #error "SMC911X: undefined bus width"
