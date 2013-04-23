@@ -47,7 +47,18 @@
 		 .length = 51 } } \
 }
 #endif
-
+/* NAND device layout in synch with the kernel */
+#ifdef GPMC_NAND_ECC_LP_x8_LAYOUT
+#define GPMC_NAND_HW_ECC_LAYOUT_KERNEL {\
+	.eccbytes = 12,\
+	.eccpos = {\
+		   40, 41, 42, 43, 44, 45, 46, 47,\
+		   48, 49, 50, 51},\
+	.oobfree = {\
+		{.offset = 1,\
+		 .length = 39} } \
+}
+#endif
 /* Large Page x16 NAND device Layout */
 #ifdef GPMC_NAND_ECC_LP_x16_LAYOUT
 #define GPMC_NAND_HW_ECC_LAYOUT {\
