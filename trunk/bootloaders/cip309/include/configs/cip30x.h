@@ -21,7 +21,7 @@
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <asm/arch/hardware.h>
 
-#define CONFIG_BOARD_CIP309REVA		1
+#define CONFIG_BOARD_CIP309REVC		1
 
 #define CONFIG_AM335X_HSMMC_INSTANCE	0	/* 0 - MMC0, 1 - MMC1 */
 

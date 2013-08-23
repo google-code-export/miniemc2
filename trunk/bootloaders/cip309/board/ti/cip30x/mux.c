@@ -296,7 +296,7 @@ static struct module_pin_mux smscnet_pin_mux[] = {
 	{OFFSET(gpmc_ad13), MODE(0) | RXACTIVE},	/* NOR_AD13 */
 	{OFFSET(gpmc_ad14), MODE(0) | RXACTIVE},	/* NOR_AD14 */
 	{OFFSET(gpmc_ad15), MODE(0) | RXACTIVE},	/* NOR_AD15 */
-	{OFFSET(gpmc_a0), MODE(7) | PULLUP_EN},			/* NOR_A0 */
+	{OFFSET(gpmc_a0), MODE(0) | PULLUP_EN},			/* NOR_A0 */
 	{OFFSET(gpmc_a1), MODE(0) | PULLUP_EN},		/* NOR_A1 */
 	{OFFSET(gpmc_a2), MODE(0) | PULLUP_EN},			/* NOR_A2 */
 	{OFFSET(gpmc_a3), MODE(0) | PULLUP_EN},			/* NOR_A3 */
@@ -304,10 +304,11 @@ static struct module_pin_mux smscnet_pin_mux[] = {
 	{OFFSET(gpmc_a5), MODE(0) | PULLUP_EN},			/* NOR_A5 */
 	{OFFSET(gpmc_a6), MODE(0) | PULLUP_EN},			/* NOR_A6 */
 	{OFFSET(gpmc_a7), MODE(0) | PULLUP_EN},			/* NOR_A7 */
-	{OFFSET(gpmc_csn3), (MODE(0) | PULLUDEN)},	/* NAND_CS0 */
-	{OFFSET(gpmc_oen_ren), (MODE(0) | PULLUDEN)},	/* NAND_OE */
-	{OFFSET(gpmc_wen), (MODE(0) | PULLUDEN)},	/* NAND_WEN */
-	{OFFSET(usb1_drvvbus), (MODE(7) | PULLUDEN)},	/* NAND_BE_CLE */
+	{OFFSET(gpmc_a8), MODE(0) | PULLUP_EN},			/* NOR_A8 */
+	{OFFSET(gpmc_csn3), (MODE(0) | PULLUDEN)},	/* CS3 For chip select */
+	{OFFSET(gpmc_oen_ren), (MODE(0) | PULLUDEN)},	/* OE */
+	{OFFSET(gpmc_wen), (MODE(0) | PULLUDEN)},	/* WEN */
+	{OFFSET(usb1_drvvbus), (MODE(7) | PULLUDEN)},	/* LAN irq */
 	{-1},
 };
 #endif
@@ -557,7 +558,6 @@ static struct evm_pin_mux general_purpose_evm_pin_mux[] = {
 #endif
 #ifdef CONFIG_MMC
 	{mmc0_pin_mux, PROFILE_ALL, DEV_ON_BASEBOARD},
-	{mmc1_pin_mux, PROFILE_2, DEV_ON_DGHTR_BRD},
 #endif
 #ifdef CONFIG_SPI
 	{spi0_pin_mux, PROFILE_2, DEV_ON_DGHTR_BRD},
@@ -644,7 +644,6 @@ static struct evm_pin_mux beaglebone_pin_mux[] = {
 #endif
 #ifdef CONFIG_MMC
 	{mmc0_pin_mux, PROFILE_ALL, DEV_ON_BASEBOARD},
-	{mmc1_pin_mux, PROFILE_2, DEV_ON_DGHTR_BRD},
 #endif
 #ifdef CONFIG_SPI
 	{spi0_pin_mux, PROFILE_2, DEV_ON_DGHTR_BRD},
@@ -663,7 +662,6 @@ static struct evm_pin_mux beaglebone_old_pin_mux[] = {
 #endif
 #ifdef CONFIG_MMC
 	{mmc0_pin_mux, PROFILE_ALL, DEV_ON_BASEBOARD},
-	{mmc1_pin_mux, PROFILE_2, DEV_ON_DGHTR_BRD},
 #endif
 #ifdef CONFIG_SPI
 	{spi0_pin_mux, PROFILE_2, DEV_ON_DGHTR_BRD},
@@ -744,7 +742,7 @@ void configure_evm_pin_mux(unsigned char dghtr_brd_id, char version[4], unsigned
 
 	set_evm_pin_mux(am335x_evm_pin_mux[dghtr_brd_id], profile,
 							daughter_board_flag);
-	#endif
+#endif
 }
 
 void enable_i2c0_pin_mux(void)
