@@ -759,7 +759,6 @@ int board_evm_init(void)
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_DRAM_1 + 0x100;
 #ifdef CONFIG_SMC911X
-	*(volatile u32*)(GPIO1_BASE + 0x134) &= ~(1L<<16);
 	enable_smscnet_pin_mux();
 #endif
 	return 0;
