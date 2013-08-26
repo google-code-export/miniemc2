@@ -83,7 +83,7 @@
 	"optargs=\0" \
 	"bootargs_defaults=setenv bootargs " \
 		"console=${console} " \
-		"${optargs}\0" \
+		"ethaddr=${ethaddr}\0" \
 	"mmc_args=run bootargs_defaults;" \
 		"setenv bootargs ${bootargs} " \
 		"root=${mmc_root} " \
